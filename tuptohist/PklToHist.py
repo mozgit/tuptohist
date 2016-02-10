@@ -99,7 +99,15 @@ def PklToHist(data, oparation_mode, histogram_address=histogram_address, plot_ad
 
     return True
 
+
 if __name__ == "__main__":
     #local_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-    data = sys.argv[1]
-    PklToHist(data,sys.argv[2])
+    if len(sys.argv)==3:
+        data = sys.argv[1]
+        try:
+            PklToHist(data,sys.argv[2])
+        except:
+            syntax_explanation("PklToHist.py")
+    else:
+        syntax_explanation("PklToHist.py")
+       

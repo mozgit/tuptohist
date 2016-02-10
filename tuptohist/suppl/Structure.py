@@ -23,6 +23,17 @@ import ROOT as R
 from ROOT import gStyle
 gStyle.SetOptStat(False)
 
+
+def syntax_explanation(script):
+    print "Incorrect syntax. Please run with:"
+    print "python "+script+" <tuple_name>.pkl <mode>"
+    print "<mode> here:"
+    print "1 - IT Hit Monitor"
+    print "2 - TT Hit Monitor"
+    print "3 - TT Hit Efficiency"
+    print "4 - IT Hit Efficiency"
+    return True 
+
 def cli_progress_test(i, end_val, start, bar_length=20):
     percent = float(i) / end_val
     hashes = '#' * int(round(percent * bar_length))

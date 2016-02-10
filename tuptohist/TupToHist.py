@@ -148,15 +148,17 @@ def TupToHist(data, oparation_mode, Number_Of_Events=Number_Of_Events, pkl_addre
         create_efficiency_trends(coll_ITHitEfficiency, "IT",histogram_address+"Trends_ITHitEfficiency")
     
     else:
-        print "To run scipt, choose the mode you want to run:"
-        print "1 - IT Hit Monitor"
-        print "2 - TT Hit Monitor"
-        print "3 - TT Hit Efficiency"
-        print "4 - IT Hit Efficiency"
+        syntax_explanation("TupToHist.py")
 
     return True
 
 if __name__ == "__main__":
-    #local_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-    data = sys.argv[1]
-    TupToHist(data,sys.argv[2])
+    if len(sys.argv)==3:
+        data = sys.argv[1]
+        try:
+            TupToHist(data,sys.argv[2])
+        except:
+            syntax_explanation("TupToHist.py")
+    else:
+        syntax_explanation("TupToHist.py")
+
