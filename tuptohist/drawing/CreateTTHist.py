@@ -8,11 +8,18 @@ from TTMapping import TTNumberOfSensors
 from TTMapping import PlotTTBoxes
 from TTMapping import PlotTTLabels
 from Create_Maps import TT_Map as TT_Map_func
-
+from config import TTMeanRange
+from config import TTWidthRange
+from config import TTEffRange
+from config import UsePredefinedRanges
 
 from array import array
 
 def CreateTTHist(data, mode, suffix, address="Plots/", test_mode = False):
+  global TTMeanRange
+  global TTWidthRange
+  global TTEffRange
+  global UsePredefinedRanges
   
   TT_Map = TT_Map_func()
 
@@ -66,20 +73,20 @@ def CreateTTHist(data, mode, suffix, address="Plots/", test_mode = False):
   upY  =  20
   
   if mode =="Mean":
-    maximum = 0.25
-    minimum = -0.25
+    maximum = TTMeanRange[1]
+    minimum = TTMeanRange[0]
     title = "Bias distribution, [mm]"
   elif mode =="Sigma":
-    maximum = 0.1
-    minimum = 0
+    maximum = TTWidthRange[1]
+    minimum = TTWidthRange[0]
     title = "Resolution, [mm]"
   elif mode =="Eff":
-    maximum = 1.05
-    minimum = 0.8
+    maximum = TTEffRange[1]
+    minimum = TTEffRange[0]
     title = "Hit efficiency"
   
 
-  hist  = R.TH2D("hist", title, nBinsX, lowX, upX, nBinsY, lowY, upY);
+  hist  = R.TH2D("hist", title, nBinsX, lowX, upX, nBinsY, lowY, upY)
   if not test_mode:
     for st_id in data:
       for i in range (0, m_nSensors[st_id]):
@@ -94,14 +101,14 @@ def CreateTTHist(data, mode, suffix, address="Plots/", test_mode = False):
   
   c = R.TCanvas("c","c",600,600)
 
-  
-  #hist.SetMaximum( maximum)
-  #hist.SetMinimum( minimum)
+  if UsePredefinedRanges:
+    hist.SetMaximum( maximum)
+    hist.SetMinimum( minimum)
 
   hist.Draw("COLZ")
   if test_mode:
     PlotTTLabels(hist)
-  PlotTTBoxes(hist)
+  PlotTTBoxes(hist,nBinsX, lowX, upX, nBinsY, lowY, upY)
 
   gStyle.SetOptStat(1111110)
   gStyle.SetOptFit(1111110)
@@ -109,6 +116,7 @@ def CreateTTHist(data, mode, suffix, address="Plots/", test_mode = False):
 
   if not test_mode:
     c.SaveAs(address+mode+"_TT_"+suffix+".pdf")
+    c.SaveAs(address+mode+"_TT_"+suffix+".C")
   return c
 
 if __name__ == "__main__":

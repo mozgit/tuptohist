@@ -26,7 +26,7 @@ def ITMapping(st_id):
         return[x,y]
 
 
-def PlotITBoxes(hist):
+def PlotITBoxes(hist, nBinsX, lowX, upX, nBinsY, lowY, upY):
   box = R.TBox()
   box.SetFillColor(R.kBlack)
   box.SetFillStyle(0)
@@ -41,13 +41,31 @@ def PlotITBoxes(hist):
   boxempty.SetLineColor(14)
   #boxempty.SetLineWidth(boxempty.GetLineWidth()/100.)
 
+  boxwhite = R.TBox()
+  boxwhite.SetFillColor(R.kWhite)
+  boxwhite.SetFillStyle(1001)
+  boxwhite.SetLineStyle(1)
+  boxwhite.SetLineColor(R.kWhite)
+
   #with open('IT_Map.pkl', 'r') as basket:
   #  IT_Map = pickle.load(basket)
   IT_Map = IT_Map_func()
 
+  x_white = float(upX-lowX)/nBinsX
+  y_white = float(upY-lowY)/nBinsY
+
+  active_sectors = []
+  for st_id in IT_Map.values():
+    active_sectors.append(ITMapping(st_id))
+  for i in range(0, nBinsX):
+    for j in range(0, nBinsY):
+      if [lowX+x_white*i+0.5, lowY+y_white*j+0.25] not in active_sectors:
+        boxwhite.DrawBox(lowX+x_white*i, lowY+y_white*j, lowX+x_white*(i+1), lowY+y_white*(j+1))
+
   for st_id in IT_Map.values():
     box.DrawBox(ITMapping(st_id)[0]-0.5,ITMapping(st_id)[1]-0.25, ITMapping(st_id)[0]+0.5,ITMapping(st_id)[1]+0.25)
     if(hist.GetBinContent( hist.GetXaxis().FindBin(ITMapping(st_id)[0]), hist.GetYaxis().FindBin(ITMapping(st_id)[1]) )==0):
+      boxwhite.DrawBox(ITMapping(st_id)[0]-0.5,ITMapping(st_id)[1]-0.25, ITMapping(st_id)[0]+0.5,ITMapping(st_id)[1]+0.25)
       boxempty.DrawBox(ITMapping(st_id)[0]-0.5,ITMapping(st_id)[1]-0.25, ITMapping(st_id)[0]+0.5,ITMapping(st_id)[1]+0.25)
 
   return True

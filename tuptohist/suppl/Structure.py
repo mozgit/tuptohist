@@ -14,6 +14,7 @@ from itertools import product
 import math
 import numpy as n
 import sys
+from config import binning
 from datetime import datetime
 from drawing.Create_Maps import TT_Map as TT_Map_func
 from drawing.Create_Maps import IT_Map as IT_Map_func
@@ -77,9 +78,9 @@ def create_coll(det="IT", mode="Monitor"):
     #}             }          } 
     coll = run_binning()
     if det == "IT":
-        ST_Map = IT_Map
+        ST_Map = IT_Map_func()
     else:
-        ST_Map = TT_Map
+        ST_Map = TT_Map_func()
     for run_bin in coll:
         run_range="::::"+str(coll[run_bin]["run_start"])+"::"+str(coll[run_bin]["run_stop"])+"::::"
         coll[run_bin]["data"]={}
@@ -128,9 +129,9 @@ def create_monitor_trends(coll, det, name):
     f.cd()
     ##runs = run_binning(private_binning)
     if det == "IT":
-        ST_Map = IT_Map
+        ST_Map = IT_Map_func()
     else:
-        ST_Map = TT_Map
+        ST_Map = TT_Map_func()
     for st_id in ST_Map:
         #residual_mean = R.TH1F("bias:trend:M_"+ST_Map[st_id],"Changes of hit residual mean;;Bias, [mm]",len(coll),0,1)
         #residual_width = R.TH1F("width:trend:M_"+ST_Map[st_id],"Changes of hit residual width;;Resolution, [mm]",len(coll),0,1)
@@ -160,9 +161,9 @@ def create_efficiency_trends(coll, det, name):
     f = R.TFile(name+"histos.root","recreate")
     ##runs = run_binning(private_binning)
     if det == "IT":
-        ST_Map = IT_Map
+        ST_Map = IT_Map_func()
     else:
-        ST_Map = TT_Map
+        ST_Map = TT_Map_func()
     for st_id in ST_Map:
         #residual_mean = R.TH1F("bias:trend:E_"+ST_Map[st_id],"Changes of hit residual mean;;Bias, [mm]",len(coll),0,1)
         #residual_width = R.TH1F("width:trend:E_"+ST_Map[st_id],"Changes of hit residual width;;Resolution, [mm]",len(coll),0,1)

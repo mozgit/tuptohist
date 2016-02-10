@@ -7,23 +7,24 @@ import numpy as n
 import sys
 import pickle
 from datetime import datetime
-from Structure import *
-from CreateTTHist import CreateTTHist
-from CreateITHist import CreateITHist
-from Create_Maps import TT_Map as TT_Map_func
-from Create_Maps import IT_Map as IT_Map_func
+from suppl.Structure import *
+from drawing.CreateTTHist import CreateTTHist
+from drawing.CreateITHist import CreateITHist
+from drawing.Create_Maps import TT_Map as TT_Map_func
+from drawing.Create_Maps import IT_Map as IT_Map_func
 from config import binning
 from config import Number_Of_Events
-from config import create_pkl
 from config import histogram_address
 from config import plot_address
+from config import pkl_address
 import ROOT as R
 from ROOT import gStyle
 gStyle.SetOptStat(False)
 #from ROOT import RooFit as RF
 
+binning
 
-def TupToHist(data, oparation_mode, Number_Of_Events=Number_Of_Events, create_pkl=create_pkl, histogram_address=histogram_address, plot_address=plot_address):
+def TupToHist(data, oparation_mode, Number_Of_Events=Number_Of_Events, pkl_address=pkl_address, histogram_address=histogram_address, plot_address=plot_address):
 
     IT_Map=IT_Map_func()
     TT_Map=TT_Map_func()
@@ -54,9 +55,8 @@ def TupToHist(data, oparation_mode, Number_Of_Events=Number_Of_Events, create_pk
                 suffix =str(coll_ITHitMonitor[run_bin]["run_start"])+"__"+str(coll_ITHitMonitor[run_bin]["run_stop"])
             CreateITHist(coll_ITHitMonitor[run_bin]["data"], mode="Mean",suffix = suffix, address=plot_address)
             CreateITHist(coll_ITHitMonitor[run_bin]["data"], mode="Sigma",suffix = suffix, address=plot_address)
-        if create_pkl:
-            with open('ITHitMonitor.pkl', 'wb') as basket:
-                pickle.dump(coll_ITHitMonitor, basket)
+        with open(pkl_address+'ITHitMonitor.pkl', 'wb') as basket:
+            pickle.dump(coll_ITHitMonitor, basket)
         write_histogram(coll_ITHitMonitor, "Monitor", histogram_address+"ITHitMonitor")
         create_monitor_trends(coll_ITHitMonitor, "IT", histogram_address+"Trends_ITHitMonitor")
     
@@ -83,10 +83,9 @@ def TupToHist(data, oparation_mode, Number_Of_Events=Number_Of_Events, create_pk
             except:
                 suffix = str(coll_TTHitMonitor[run_bin]["run_start"])+"__"+str(coll_TTHitMonitor[run_bin]["run_stop"])
             CreateTTHist(coll_TTHitMonitor[run_bin]["data"], mode="Mean",suffix= suffix,address=plot_address)
-            CreateTTHist(coll_TTHitMonitor[run_bin]["data"], mode="Sigma",suffix=suffix,address=plot_address)
-        if create_pkl:            
-            with open('TTHitMonitor.pkl', 'wb') as basket:
-                pickle.dump(coll_TTHitMonitor, basket)        
+            CreateTTHist(coll_TTHitMonitor[run_bin]["data"], mode="Sigma",suffix=suffix,address=plot_address)           
+        with open(pkl_address+'TTHitMonitor.pkl', 'wb') as basket:
+            pickle.dump(coll_TTHitMonitor, basket)        
         write_histogram(coll_TTHitMonitor, "Monitor",histogram_address+"TTHitMonitor")
         create_monitor_trends(coll_TTHitMonitor, "TT",histogram_address+"Trends_TTHitMonitor")
     
@@ -114,9 +113,8 @@ def TupToHist(data, oparation_mode, Number_Of_Events=Number_Of_Events, create_pk
             except:
                 suffix = str(coll_TTHitEfficiency[run_bin]["run_start"])+"__"+str(coll_TTHitEfficiency[run_bin]["run_stop"])
             CreateTTHist(coll_TTHitEfficiency[run_bin]["data"], mode="Eff",suffix=suffix,address=plot_address)
-        if create_pkl:
-            with open('TTHitEfficiency.pkl', 'wb') as basket:
-                pickle.dump(coll_TTHitEfficiency, basket)        
+        with open(pkl_address+'TTHitEfficiency.pkl', 'wb') as basket:
+            pickle.dump(coll_TTHitEfficiency, basket)        
         write_histogram(coll_TTHitEfficiency, "Efficiency",histogram_address+"TTHitEfficiency")
         create_efficiency_trends(coll_TTHitEfficiency, "TT",histogram_address+"Trends_TTHitEfficiency")
     
@@ -144,9 +142,8 @@ def TupToHist(data, oparation_mode, Number_Of_Events=Number_Of_Events, create_pk
             except:
                 suffix = str(coll_ITHitEfficiency[run_bin]["run_start"])+"__"+str(coll_ITHitEfficiency[run_bin]["run_stop"])
             CreateITHist(coll_ITHitEfficiency[run_bin]["data"], mode="Eff",suffix=suffix, address=plot_address)
-        if create_pkl:
-            with open('ITHitEfficiency.pkl', 'wb') as basket:
-                pickle.dump(coll_ITHitEfficiency, basket)                
+        with open(pkl_address+'ITHitEfficiency.pkl', 'wb') as basket:
+            pickle.dump(coll_ITHitEfficiency, basket)                
         write_histogram(coll_ITHitEfficiency, "Efficiency",histogram_address+"ITHitEfficiency")
         create_efficiency_trends(coll_ITHitEfficiency, "IT",histogram_address+"Trends_ITHitEfficiency")
     
@@ -160,6 +157,6 @@ def TupToHist(data, oparation_mode, Number_Of_Events=Number_Of_Events, create_pk
     return True
 
 if __name__ == "__main__":
-    local_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-    data = local_dir + "/"+sys.argv[1]
+    #local_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+    data = sys.argv[1]
     TupToHist(data,sys.argv[2])

@@ -152,7 +152,7 @@ def TTNumberOfSensors(st_id):
           return 1
       
     
-def PlotTTBoxes(hist):
+def PlotTTBoxes(hist, nBinsX, lowX, upX, nBinsY, lowY, upY):
   box = R.TBox()
   box.SetFillColor(R.kWhite)
   box.SetFillStyle(0)
@@ -166,13 +166,34 @@ def PlotTTBoxes(hist):
   boxempty.SetLineStyle(3)
   boxempty.SetLineColor(14)
   #boxempty.SetLineWidth(boxempty.GetLineWidth()/100.)
+
+  boxwhite = R.TBox()
+  boxwhite.SetFillColor(R.kWhite)
+  boxwhite.SetFillStyle(1001)
+  boxwhite.SetLineStyle(1)
+  boxwhite.SetLineColor(R.kWhite)  
  
   #with open('TT_Map.pkl', 'r') as basket:
   #  TT_Map = pickle.load(basket)
   TT_Map = TT_Map_func()
+
+  x_white = float(upX-lowX)/nBinsX
+  y_white = float(upY-lowY)/nBinsY
+
+  active_sectors = []
+  for st_id in TT_Map.values():
+    for i in range(0, TTNumberOfSensors(st_id)):
+      active_sectors.append([TTMapping(st_id)[0],TTMapping(st_id)[1]+i])
+  for i in range(0, nBinsX):
+    for j in range(0, nBinsY):
+      if [lowX+x_white*i+0.5, lowY+y_white*j+0.5] not in active_sectors:
+        boxwhite.DrawBox(lowX+x_white*i, lowY+y_white*j, lowX+x_white*(i+1), lowY+y_white*(j+1))
+
+
   for st_id in TT_Map.values():
     box.DrawBox(TTMapping(st_id)[0]-0.5,TTMapping(st_id)[1]-0.5, TTMapping(st_id)[0]+0.5,TTMapping(st_id)[1]+0.5+TTNumberOfSensors(st_id)-1.)
     if(hist.GetBinContent( hist.GetXaxis().FindBin(TTMapping(st_id)[0]), hist.GetYaxis().FindBin(TTMapping(st_id)[1]) )==0):
+      boxwhite.DrawBox(TTMapping(st_id)[0]-0.5,TTMapping(st_id)[1]-0.5, TTMapping(st_id)[0]+0.5,TTMapping(st_id)[1]+0.5+TTNumberOfSensors(st_id)-1.)
       boxempty.DrawBox(TTMapping(st_id)[0]-0.5,TTMapping(st_id)[1]-0.5, TTMapping(st_id)[0]+0.5,TTMapping(st_id)[1]+0.5+TTNumberOfSensors(st_id)-1.)
 
 def PlotTTLabels(hist): 

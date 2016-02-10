@@ -7,11 +7,21 @@ from ITMapping import ITMapping
 from ITMapping import PlotITBoxes
 from ITMapping import PlotITLabels
 from Create_Maps import IT_Map as IT_Map_func
-
+from config import ITMeanRange
+from config import ITWidthRange
+from config import ITEffRange
+from config import UsePredefinedRanges
 
 from array import array
 
+
 def CreateITHist(data, mode, suffix, address="Plots/", test_mode=False):
+
+  global ITMeanRange
+  global ITWidthRange
+  global ITEffRange
+  global UsePredefinedRanges
+
  
   stats = ["1","2","3"]
   boxes = ["ASide","CSide","Top","Bottom"]
@@ -58,16 +68,16 @@ def CreateITHist(data, mode, suffix, address="Plots/", test_mode=False):
     m_mapping[st_id]=ITMapping(IT_Map[st_id])
 
   if mode =="Mean":
-    maximum = 0.1
-    minimum = -0.1
+    maximum = ITMeanRange[1]
+    minimum = ITMeanRange[0]
     title = "Bias distribution, [mm]"
   elif mode =="Sigma":
-    maximum = 0.1
-    minimum = 0
+    maximum = ITWidthRange[1]
+    minimum = ITWidthRange[0]
     title = "Resolution, [mm]"
   elif mode =="Eff":
-    maximum = 1.05
-    minimum = 0.8
+    maximum = ITEffRange[1]
+    minimum = ITEffRange[0]
     title = "Hit efficiency"
 
   nBinsX = 25
@@ -77,7 +87,6 @@ def CreateITHist(data, mode, suffix, address="Plots/", test_mode=False):
   lowY = -13
   upY  =  13
   hist = R.TH2D("hist", title, nBinsX, lowX, upX, nBinsY, lowY, upY)
-
   if not test_mode:
     for st_id in data:
       if mode =="Mean":
@@ -90,18 +99,22 @@ def CreateITHist(data, mode, suffix, address="Plots/", test_mode=False):
         print "Please use one of the following modes: Mean, Sigma, Eff"
   
   c = R.TCanvas("c","c",600,600)
-  #hist.SetMaximum( maximum)
-  #hist.SetMinimum( minimum)
+
+  if UsePredefinedRanges:
+    hist.SetMaximum( maximum)
+    hist.SetMinimum( minimum)
   hist.Draw("COLZ")
+
   if test_mode:
     PlotITLabels(hist)
-  PlotITBoxes(hist)
+  PlotITBoxes(hist, nBinsX, lowX, upX, nBinsY, lowY, upY)
 
   gStyle.SetOptStat(1111110)
   gStyle.SetOptFit(1111110)
   gROOT.ForceStyle()
   if not test_mode:
     c.SaveAs(address+mode+"_IT_"+suffix+".pdf")
+    c.SaveAs(address+mode+"_IT_"+suffix+".C")
   return c
  
 if __name__ == "__main__":
