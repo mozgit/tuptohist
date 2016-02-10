@@ -15,7 +15,24 @@ from config import UsePredefinedRanges
 from array import array
 
 
-def CreateITHist(data, mode, suffix, address="Plots/", test_mode=False):
+def CreateITHist(data,variable, mode, suffix, address="Plots/", test_mode=False):
+  """
+  This finction creates map of the IT from given dictionary.
+  Dictionary whould have a form:
+  data = {<st_id1>:{
+                    <variable>:<number or TH1>
+                    },
+          <st_id2>:{},
+          ...}
+  depending on mode, the function will create a map according to the:
+  - Number ("Eff" mode)
+  - Mean of the histogram ("Mean" mode)
+  - R.M.S. of the histogram ("Sigma" mode)
+
+  st_id is a 3-digit ID of a sector, which is defined in STTrackTuple algorithm. 
+  The map between st_id and sector name can be found it Create_Maps.py file (or be obtained with IT_Map_func())
+  """
+
 
   global ITMeanRange
   global ITWidthRange
@@ -90,11 +107,11 @@ def CreateITHist(data, mode, suffix, address="Plots/", test_mode=False):
   if not test_mode:
     for st_id in data:
       if mode =="Mean":
-        hist.Fill(m_mapping[st_id][0], m_mapping[st_id][1], data[st_id]["unbiased_residual"].GetMean())
+        hist.Fill(m_mapping[st_id][0], m_mapping[st_id][1], data[st_id][variable].GetMean())
       elif mode =="Sigma":
-        hist.Fill(m_mapping[st_id][0], m_mapping[st_id][1], data[st_id]["unbiased_residual"].GetRMS())
+        hist.Fill(m_mapping[st_id][0], m_mapping[st_id][1], data[st_id][variable].GetRMS())
       elif mode =="Eff":
-        hist.Fill(m_mapping[st_id][0], m_mapping[st_id][1], data[st_id]["efficiency"])
+        hist.Fill(m_mapping[st_id][0], m_mapping[st_id][1], data[st_id][variable])
       else:
         print "Please use one of the following modes: Mean, Sigma, Eff"
   

@@ -15,7 +15,23 @@ from config import UsePredefinedRanges
 
 from array import array
 
-def CreateTTHist(data, mode, suffix, address="Plots/", test_mode = False):
+def CreateTTHist(data, variable,  mode, suffix, address="Plots/", test_mode = False):
+  """
+  This finction creates map of the TT from given dictionary.
+  Dictionary whould have a form:
+  data = {<st_id1>:{
+                    <variable>:<number or TH1>
+                    },
+          <st_id2>:{},
+          ...}
+  depending on mode, the function will create a map according to the:
+  - Number ("Eff" mode)
+  - Mean of the histogram ("Mean" mode)
+  - R.M.S. of the histogram ("Sigma" mode)
+
+  st_id is a 3-digit ID of a sector, which is defined in STTrackTuple algorithm. 
+  The map between st_id and sector name can be found it Create_Maps.py file (or be obtained with TT_Map_func())
+  """
   global TTMeanRange
   global TTWidthRange
   global TTEffRange
@@ -91,11 +107,11 @@ def CreateTTHist(data, mode, suffix, address="Plots/", test_mode = False):
     for st_id in data:
       for i in range (0, m_nSensors[st_id]):
           if mode =="Mean":
-            hist.Fill(m_mapping[st_id][0], m_mapping[st_id][1]+i, data[st_id]["unbiased_residual"].GetMean())
+            hist.Fill(m_mapping[st_id][0], m_mapping[st_id][1]+i, data[st_id][variable].GetMean())
           elif mode =="Sigma":
-            hist.Fill(m_mapping[st_id][0], m_mapping[st_id][1]+i, data[st_id]["unbiased_residual"].GetRMS())
+            hist.Fill(m_mapping[st_id][0], m_mapping[st_id][1]+i, data[st_id][variable].GetRMS())
           elif mode =="Eff":
-            hist.Fill(m_mapping[st_id][0], m_mapping[st_id][1]+i, data[st_id]["efficiency"])
+            hist.Fill(m_mapping[st_id][0], m_mapping[st_id][1]+i, data[st_id][variable])
           else:
             print "Please use one of the following modes: Mean, Sigma, Eff"
   
@@ -120,4 +136,4 @@ def CreateTTHist(data, mode, suffix, address="Plots/", test_mode = False):
   return c
 
 if __name__ == "__main__":
-  c = CreateTTHist(True, "Mean", "suffix","Plots/", True)
+  c = CreateTTHist(True, "unbiased_residual","Mean", "suffix","Plots/", True)
