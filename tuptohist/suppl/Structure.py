@@ -26,7 +26,7 @@ gStyle.SetOptStat(False)
 
 def syntax_explanation(script):
     print "Incorrect syntax. Please run with:"
-    print "python "+script+" <tuple_name>.pkl <mode>"
+    print "python "+script+" <data_file> <mode>"
     print "<mode> here:"
     print "1 - IT Hit Monitor"
     print "2 - TT Hit Monitor"
