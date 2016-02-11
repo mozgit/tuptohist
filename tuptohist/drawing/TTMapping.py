@@ -203,46 +203,52 @@ def PlotTTLabels(hist):
   hist.GetYaxis().SetLabelColor(R.kWhite)
  
   tta =R.TText()
-  tta.DrawText(-0.75, -9.8, "TTa")
+  tta.SetTextSize(0.03)
+  tta.DrawText(-1.5, -9.8, "TTa")
  
   ttb = R.TText()
-  ttb.DrawText(-0.75, 8., "TTb")
+  ttb.SetTextSize(0.03)
+  ttb.DrawText(-1.5, 8., "TTb")
  
   ttaX = R.TText()
-  ttaX.DrawText(-19.8, -9., "X")
+  ttaX.SetTextSize(0.04)
+  ttaX.DrawText(-20.8, -9., "X")
  
   ttaU = R.TText()
+  ttaU.SetTextSize(0.04)
   ttaU.DrawText(19.3, -9., "U")
  
   ttbV = R.TText()
-  ttbV.DrawText(-19.8, 8., "V")
+  ttbV.SetTextSize(0.04)
+  ttbV.DrawText(-20.8, 8., "V")
  
   ttbX = R.TText()
+  ttbX.SetTextSize(0.04)
   ttbX.DrawText(19.3, 8., "X")
  
   ttA = R.TText()
-  ttA.SetTextSize(0.07)
-  ttA.DrawText(-20.8, -0.5, "A")
+  ttA.SetTextSize(0.05)
+  ttA.DrawText(-21., -0.7, "A")
  
   ttC = R.TText()
-  ttC.SetTextSize(0.07)
-  ttC.DrawText(19.8, -0.5, "C")
+  ttC.SetTextSize(0.05)
+  ttC.DrawText(19.1, -0.7, "C")
  
   XArrow = R.TArrow()
-  XArrow.DrawArrow(0.,-18.,-8.5,-18.,0.005,"|-|>")
+  XArrow.DrawArrow(8.,-18.,-8.,-18.,0.005,"|-|>")
  
   X =R.TText()
   X.SetTextSize(0.04)
-  X.DrawText(-9.1, -19., "X")
+  X.DrawText(-10, -18.7, "X")
  
   #with open('TT_Map.pkl', 'r') as basket:
   #  TT_Map = pickle.load(basket)
   TT_Map = TT_Map_func()
   for st_id in TT_Map:    
     tt = R.TText()
-    tt.SetTextSize(0.015)
-    tt.SetTextAngle(90)
-    tt.DrawText(TTMapping(TT_Map[st_id])[0]-0.25, TTMapping(TT_Map[st_id])[1]+0.45*(TTNumberOfSensors(TT_Map[st_id])-1), str(st_id))
+    tt.SetTextSize(0.01)
+    #tt.SetTextAngle(90)
+    tt.DrawText(TTMapping(TT_Map[st_id])[0]-0.25, TTMapping(TT_Map[st_id])[1]+0.45*(TTNumberOfSensors(TT_Map[st_id])-1), TT_Map[st_id].split("Sector")[1])
   return True 
 
 def tt_unique_sector_map(sector):

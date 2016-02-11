@@ -46,7 +46,7 @@ def CreateTTHist(data, variable,  mode, suffix, address="Plots/", test_mode = Fa
 
   gStyle.SetOptStat(0)
   gStyle.SetOptFit(0)
-  gStyle.SetPadRightMargin(0.25)
+  gStyle.SetPadRightMargin(0.2)
   gStyle.SetTitleX(0.5)
   gStyle.SetTitleAlign(23)
   gStyle.SetTitleBorderSize(0)
@@ -108,10 +108,16 @@ def CreateTTHist(data, variable,  mode, suffix, address="Plots/", test_mode = Fa
       for i in range (0, m_nSensors[st_id]):
           if mode =="Mean":
             hist.Fill(m_mapping[st_id][0], m_mapping[st_id][1]+i, data[st_id][variable].GetMean())
+            if (i==0) and((maximum<data[st_id][variable].GetMean()) or (minimum>data[st_id][variable].GetMean())):
+              print "Atention, hit bias of sector "+TT_Map[st_id]+" is out of hist range. The value is "+str(data[st_id][variable].GetMean())
           elif mode =="Sigma":
             hist.Fill(m_mapping[st_id][0], m_mapping[st_id][1]+i, data[st_id][variable].GetRMS())
+            if (i==0) and((maximum<data[st_id][variable].GetRMS()) or (minimum>data[st_id][variable].GetRMS())):
+              print "Atention, resolution of sector "+TT_Map[st_id]+" is out of hist range. The value is "+str(data[st_id][variable].GetRMS())
           elif mode =="Eff":
             hist.Fill(m_mapping[st_id][0], m_mapping[st_id][1]+i, data[st_id][variable])
+            if (i==0) and((maximum<data[st_id][variable]) or (minimum>data[st_id][variable])):
+              print "Atention, hit efficiency of sector "+TT_Map[st_id]+" is out of hist range. The value is "+str(data[st_id][variable])
           else:
             print "Please use one of the following modes: Mean, Sigma, Eff"
   
@@ -122,9 +128,10 @@ def CreateTTHist(data, variable,  mode, suffix, address="Plots/", test_mode = Fa
     hist.SetMinimum( minimum)
 
   hist.Draw("COLZ")
-  if test_mode:
-    PlotTTLabels(hist)
+  #if test_mode:
+    
   PlotTTBoxes(hist,nBinsX, lowX, upX, nBinsY, lowY, upY)
+  PlotTTLabels(hist)
 
   gStyle.SetOptStat(1111110)
   gStyle.SetOptFit(1111110)

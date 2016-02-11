@@ -104,10 +104,7 @@ if __name__ == "__main__":
     #local_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
     if len(sys.argv)==3:
         data = sys.argv[1]
-        try:
-            PklToHist(data,sys.argv[2])
-        except:
-            syntax_explanation("PklToHist.py")
+        PklToHist(data,sys.argv[2])
     else:
         syntax_explanation("PklToHist.py")
        

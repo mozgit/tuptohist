@@ -16,8 +16,8 @@ plot_address = "Plots/" #Adress for storing plots
 UsePredefinedRanges = True
 ITMeanRange         = [-0.03, 0.03]
 ITWidthRange        = [0.02, 0.06]
-ITEffRange          = [0.07, 1.0]
+ITEffRange          = [0.99, 1.0]
 
 TTMeanRange         = [-0.03, 0.03]
 TTWidthRange        = [0.02, 0.06]
-TTEffRange          = [0.07, 1.0]
+TTEffRange          = [0.9, 1.0]
