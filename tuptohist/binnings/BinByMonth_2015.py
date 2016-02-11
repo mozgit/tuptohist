@@ -1,8 +1,9 @@
+bin_name = "BinByMonth_2015"
 binning=[
 #Aug 15
-{'comment': "Aug 15",
-'run_start':159969,
-'run_stop':161204},
+#{'comment': "Aug 15",
+#'run_start':159969,
+#'run_stop':161204},
 #Sep 15
 {'comment': "Sep 15",
 'run_start':162247,
@@ -17,9 +18,11 @@ binning=[
 {'comment': "Nov 15",
 'run_start':166950,
 'run_stop': 168872
-},
+}
+#,
 #Dec 15
-{'comment': "Dec 15",
-'run_start':168892,
-'run_stop':169617
-}]
+#{'comment': "Dec 15",
+#'run_start':168892,
+#'run_stop':169617
+#}
+]

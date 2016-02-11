@@ -56,8 +56,8 @@ def run_binning():
 #R.TH1F("hist_s","Name",100, -3,3)
 
 def create_monitor_ind(st_name,run_range):
-    #Information which should be filled for individual sector for Monitor mode:
-
+    #Information which should be filled for individual sector for Monitor mode
+    #To produce .root files only!
     monitor_ind = {
     "residual":R.TH1F("residualM"+run_range+"_"+st_name,"Residual;[mm];Number of events",100, -0.5,0.5),
     "errMeasure":[],
@@ -66,19 +66,35 @@ def create_monitor_ind(st_name,run_range):
     return monitor_ind
 
 def create_efficiency_ind(st_name,run_range):
-    #Information which should be filled for individual sector for Efficiency mode:
+    #Information which should be filled for individual sector for Efficiency mode
+    #To produce .root files only!
     efficiency_ind = {"nbFound":0,
     "nbExpected":0,
     "efficiency":0,
-    "err_efficeincy":0,
+    "err_efficiency":0,
     "residual":R.TH1F("residualE"+run_range+"_"+st_name,"Residual;[mm];Number of events",100, -0.5,0.5),
     "efficiency_hist":R.TH1F("efficiency"+run_range+"_"+st_name,"Efficiency",1, 0.,1.)}
     return efficiency_ind
 
+def create_monitor_lite(monitor_ind):
+    #Information which should be filled for individual sector for Monitor mode
+    #To produce .pkls and build trends.
+    monitor_lite = {
+    "mean":monitor_ind["unbiased_residual"].GetMean(),
+    "width":monitor_ind["unbiased_residual"].GetRMS()}
+    return monitor_lite
 
+def create_efficiency_lite(efficiency_ind):
+    #Information which should be filled for individual sector for Efficiency mode
+    #To produce .pkls and build trends.
+    efficiency_lite = {
+    "efficiency":efficiency_ind["efficiency"],
+    "err_efficiency":efficiency_ind["err_efficiency"],}
+    return efficiency_lite
 
 
 def create_coll(det="IT", mode="Monitor"):
+    #To be used for creation of histograms
     #{<run_start>:{
     #            "run_start":<run_start>,
     #            "run_stop" :<run_stop>,
@@ -102,6 +118,31 @@ def create_coll(det="IT", mode="Monitor"):
                 coll[run_bin]["data"][st_id]=create_efficiency_ind(ST_Map[st_id],run_range)
     return coll
 
+def make_coll_lite(coll, det="IT", mode="Monitor"):
+    #To be stored in .pkl, to create trends
+    #{<run_start>:{
+    #            "run_start":<run_start>,
+    #            "run_stop" :<run_stop>,
+    #            "data"     :{
+    #                        <st_ID1>:{},
+    #                        <st_ID2>:{},
+    #                        <st_ID3>:{}...
+    #}             }          } 
+    lite_coll = run_binning()
+    if det == "IT":
+        ST_Map = IT_Map_func()
+    else:
+        ST_Map = TT_Map_func()
+    for run_bin in coll:
+        run_range="::::"+str(coll[run_bin]["run_start"])+"::"+str(coll[run_bin]["run_stop"])+"::::"
+        lite_coll[run_bin]["data"]={}
+        for st_id in ST_Map:
+            if mode == "Monitor":
+                lite_coll[run_bin]["data"][st_id]=create_monitor_lite(coll[run_bin]["data"][st_id])
+            else:
+                lite_coll[run_bin]["data"][st_id]=create_efficiency_lite(coll[run_bin]["data"][st_id])
+    return lite_coll
+
 def find_efficiency(coll):
     for run_bin in coll:
         for st_ID in coll[run_bin]["data"]:
@@ -109,14 +150,14 @@ def find_efficiency(coll):
             nbe = coll[run_bin]["data"][st_ID]["nbExpected"]
             if nbe == 0:
                 coll[run_bin]["data"][st_ID]["efficiency"]= 0
-                coll[run_bin]["data"][st_ID]["err_efficeincy"] = 0
+                coll[run_bin]["data"][st_ID]["err_efficiency"] = 0
                 coll[run_bin]["data"][st_ID]["efficiency_hist"].SetBinContent(1, 0)
                 coll[run_bin]["data"][st_ID]["efficiency_hist"].SetBinError(1, 0)
                 continue
             coll[run_bin]["data"][st_ID]["efficiency"]=nbf/nbe
-            coll[run_bin]["data"][st_ID]["err_efficeincy"] = nbf**0.5*(nbe-nbf)**0.5*nbe**(-1.5)
+            coll[run_bin]["data"][st_ID]["err_efficiency"] = nbf**0.5*(nbe-nbf)**0.5*nbe**(-1.5)
             coll[run_bin]["data"][st_ID]["efficiency_hist"].SetBinContent(1, coll[run_bin]["data"][st_ID]["efficiency"])
-            coll[run_bin]["data"][st_ID]["efficiency_hist"].SetBinError(1, coll[run_bin]["data"][st_ID]["err_efficeincy"])
+            coll[run_bin]["data"][st_ID]["efficiency_hist"].SetBinError(1, coll[run_bin]["data"][st_ID]["err_efficiency"])
     return coll
 
 def write_histogram(coll, mode, name):
@@ -135,63 +176,42 @@ def write_histogram(coll, mode, name):
     return True
 
 
-def create_monitor_trends(coll, det, name):
+def create_monitor_trends(lite_coll, det, name):
     f = R.TFile(name+"histos.root","recreate")
     f.cd()
-    ##runs = run_binning(private_binning)
     if det == "IT":
         ST_Map = IT_Map_func()
     else:
         ST_Map = TT_Map_func()
     for st_id in ST_Map:
-        #residual_mean = R.TH1F("bias:trend:M_"+ST_Map[st_id],"Changes of hit residual mean;;Bias, [mm]",len(coll),0,1)
-        #residual_width = R.TH1F("width:trend:M_"+ST_Map[st_id],"Changes of hit residual width;;Resolution, [mm]",len(coll),0,1)
-        ubresidual_mean = R.TH1F("bias:trend:RMSNB:M_"+ST_Map[st_id],"Changes of hit residual mean (rms-unbiased);;Bias, [mm]",len(coll),0,1)
-        ubresidual_width = R.TH1F("width:trend:RMSNB:M_"+ST_Map[st_id],"Changes of hit residual width rms-unbiased;;Resolution, [mm]",len(coll),0,1)
-        for i, run_bin in enumerate(sorted(coll.keys())):
-            #residual_mean.SetBinContent(i+1, coll[run_bin]["data"][st_id]["residual"].GetMean())
-            #residual_mean.GetXaxis().SetNdivisions(-414)
-            #residual_mean.GetXaxis().SetBinLabel(i+1,str(coll[run_bin]["run_start"])+"-"+str(coll[run_bin]["run_stop"]))
-            #residual_width.SetBinContent(i+1, coll[run_bin]["data"][st_id]["residual"].GetRMS())
-            #residual_width.GetXaxis().SetNdivisions(-414)
-            #residual_width.GetXaxis().SetBinLabel(i+1,str(coll[run_bin]["run_start"])+"-"+str(coll[run_bin]["run_stop"]))
-            ubresidual_mean.SetBinContent(i+1, coll[run_bin]["data"][st_id]["unbiased_residual"].GetMean())
+        ubresidual_mean = R.TH1F("bias:trend:RMSNB:M_"+ST_Map[st_id],"Changes of hit residual mean (rms-unbiased);;Bias, [mm]",len(lite_coll),0,1)
+        ubresidual_width = R.TH1F("width:trend:RMSNB:M_"+ST_Map[st_id],"Changes of hit residual width rms-unbiased;;Resolution, [mm]",len(lite_coll),0,1)
+        for i, run_bin in enumerate(sorted(lite_coll.keys())):
+            ubresidual_mean.SetBinContent(i+1, lite_coll[run_bin]["data"][st_id]["mean"])
+            ubresidual_mean.SetBinError(i+1, lite_coll[run_bin]["data"][st_id]["width"])
             ubresidual_mean.GetXaxis().SetNdivisions(-414)
-            ubresidual_mean.GetXaxis().SetBinLabel(i+1,str(coll[run_bin]["run_start"])+"-"+str(coll[run_bin]["run_stop"]))
-            ubresidual_width.SetBinContent(i+1, coll[run_bin]["data"][st_id]["unbiased_residual"].GetRMS())
+            ubresidual_mean.GetXaxis().SetBinLabel(i+1,str(lite_coll[run_bin]["run_start"])+"-"+str(lite_coll[run_bin]["run_stop"]))
+            ubresidual_width.SetBinContent(i+1, lite_coll[run_bin]["data"][st_id]["width"])
             ubresidual_width.GetXaxis().SetNdivisions(-414)
-            ubresidual_width.GetXaxis().SetBinLabel(i+1,str(coll[run_bin]["run_start"])+"-"+str(coll[run_bin]["run_stop"]))
-        #residual_mean.Write()
-        #residual_width.Write()
+            ubresidual_width.GetXaxis().SetBinLabel(i+1,str(lite_coll[run_bin]["run_start"])+"-"+str(lite_coll[run_bin]["run_stop"]))
         ubresidual_mean.Write()
         ubresidual_width.Write()
     f.Close()
     return True
 
-def create_efficiency_trends(coll, det, name):
+def create_efficiency_trends(lite_coll, det, name):
     f = R.TFile(name+"histos.root","recreate")
-    ##runs = run_binning(private_binning)
     if det == "IT":
         ST_Map = IT_Map_func()
     else:
         ST_Map = TT_Map_func()
     for st_id in ST_Map:
-        #residual_mean = R.TH1F("bias:trend:E_"+ST_Map[st_id],"Changes of hit residual mean;;Bias, [mm]",len(coll),0,1)
-        #residual_width = R.TH1F("width:trend:E_"+ST_Map[st_id],"Changes of hit residual width;;Resolution, [mm]",len(coll),0,1)
-        efficiency = R.TH1F("eff:trend_"+ST_Map[st_id],"Changes of hit efficiency;;Efficiency",len(coll),0,1)
-        for i, run_bin in enumerate(sorted(coll.keys())):
-            #residual_mean.SetBinContent(i+1, coll[run_bin]["data"][st_id]["residual"].GetMean())
-            #residual_mean.GetXaxis().SetNdivisions(-414)
-            #residual_mean.GetXaxis().SetBinLabel(i+1,str(coll[run_bin]["run_start"])+"-"+str(coll[run_bin]["run_stop"]))
-            #residual_width.SetBinContent(i+1, coll[run_bin]["data"][st_id]["residual"].GetRMS())
-            #residual_width.GetXaxis().SetNdivisions(-414)
-            #residual_width.GetXaxis().SetBinLabel(i+1,str(coll[run_bin]["run_start"])+"-"+str(coll[run_bin]["run_stop"]))
-            efficiency.SetBinContent(i+1, coll[run_bin]["data"][st_id]["efficiency_hist"].GetBinContent(1))
-            efficiency.SetBinError(i+1, coll[run_bin]["data"][st_id]["efficiency_hist"].GetBinError(1))
+        efficiency = R.TH1F("eff:trend_"+ST_Map[st_id],"Changes of hit efficiency;;Efficiency",len(lite_coll),0,1)
+        for i, run_bin in enumerate(sorted(lite_coll.keys())):
+            efficiency.SetBinContent(i+1, lite_coll[run_bin]["data"][st_id]["efficiency"])
+            efficiency.SetBinError(i+1, lite_coll[run_bin]["data"][st_id]["err_efficiency"])
             efficiency.GetXaxis().SetNdivisions(-414)
-            efficiency.GetXaxis().SetBinLabel(i+1,str(coll[run_bin]["run_start"])+"-"+str(coll[run_bin]["run_stop"]))
-        #residual_mean.Write()
-        #residual_width.Write()
+            efficiency.GetXaxis().SetBinLabel(i+1,str(lite_coll[run_bin]["run_start"])+"-"+str(lite_coll[run_bin]["run_stop"]))
         efficiency.Write()
     f.Close()
     return True

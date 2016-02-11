@@ -1,3 +1,4 @@
+bin_name = "BinByAlignment_2015"
 binning = [{"year_start":2015,
     "month_start":6,
     "day_start":3,

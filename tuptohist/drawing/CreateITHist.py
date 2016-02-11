@@ -25,7 +25,7 @@ def CreateITHist(data,variable, mode, suffix, address="Plots/", test_mode=False)
           <st_id2>:{},
           ...}
   depending on mode, the function will create a map according to the:
-  - Number ("Eff" mode)
+  - Number ("Value" mode)
   - Mean of the histogram ("Mean" mode)
   - R.M.S. of the histogram ("Sigma" mode)
 
@@ -83,20 +83,20 @@ def CreateITHist(data,variable, mode, suffix, address="Plots/", test_mode=False)
 
   for st_id in IT_Map:
     m_mapping[st_id]=ITMapping(IT_Map[st_id])
-
-  if mode =="Mean":
+  
+  if (mode =="Mean") or (variable == "mean"):
     maximum = ITMeanRange[1]
     minimum = ITMeanRange[0]
     title = "Bias distribution, [mm]"
-  elif mode =="Sigma":
+  elif (mode =="Sigma") or (variable == "width"):
     maximum = ITWidthRange[1]
     minimum = ITWidthRange[0]
     title = "Resolution, [mm]"
-  elif mode =="Eff":
+  elif variable == "efficiency":
     maximum = ITEffRange[1]
     minimum = ITEffRange[0]
     title = "Hit efficiency"
-
+  
   nBinsX = 25
   nBinsY = 52
   lowX = -12.5
@@ -114,12 +114,12 @@ def CreateITHist(data,variable, mode, suffix, address="Plots/", test_mode=False)
         hist.Fill(m_mapping[st_id][0], m_mapping[st_id][1], data[st_id][variable].GetRMS())
         if (maximum<data[st_id][variable].GetRMS()) or (minimum>data[st_id][variable].GetRMS()):
           print "Atention, resolution of sector "+IT_Map[st_id]+" is out of hist range. The value is "+str(data[st_id][variable].GetRMS())
-      elif mode =="Eff":
+      elif mode =="Value":
         hist.Fill(m_mapping[st_id][0], m_mapping[st_id][1], data[st_id][variable])
         if (maximum<data[st_id][variable]) or (minimum>data[st_id][variable]):
-          print "Atention, hit efficiency of sector "+IT_Map[st_id]+" is out of hist range. The value is "+str(data[st_id][variable])
+          print "Atention, "+variable+" of sector "+IT_Map[st_id]+" is out of hist range. The value is "+str(data[st_id][variable])
       else:
-        print "Please use one of the following modes: Mean, Sigma, Eff"
+        print "Please use one of the following modes: Mean, Sigma, Value"
   
   c = R.TCanvas("c","c",600,600)
 

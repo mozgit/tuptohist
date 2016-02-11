@@ -31,12 +31,12 @@ def PklToHist(data, oparation_mode, histogram_address=histogram_address, plot_ad
                 suffix =coll_ITHitMonitor[run_bin]["comment"].replace(" ","_")
             except:
                 suffix =str(coll_ITHitMonitor[run_bin]["run_start"])+"__"+str(coll_ITHitMonitor[run_bin]["run_stop"])
-            CreateITHist(coll_ITHitMonitor[run_bin]["data"],variable="unbiased_residual", mode="Mean",suffix = suffix, address=plot_address)
-            CreateITHist(coll_ITHitMonitor[run_bin]["data"],variable="unbiased_residual", mode="Sigma",suffix = suffix, address=plot_address)
-        print "2D plots created, writing histograms to .root file"            
-        write_histogram(coll_ITHitMonitor, "Monitor", histogram_address+"ITHitMonitor")
-        print "Histograms saved, creating trends"
-        create_monitor_trends(coll_ITHitMonitor, "IT", histogram_address+"Trends_ITHitMonitor")
+            CreateITHist(coll_ITHitMonitor[run_bin]["data"],variable="mean", mode="Value",suffix = suffix, address=plot_address)
+            CreateITHist(coll_ITHitMonitor[run_bin]["data"],variable="width", mode="Value",suffix = suffix, address=plot_address)
+        print "2D plots created"#, writing histograms to .root file"            
+        #write_histogram(coll_ITHitMonitor, "Monitor", histogram_address+"ITHitMonitor")
+        #print "Histograms saved, creating trends"
+        #create_monitor_trends(coll_ITHitMonitor, "IT", histogram_address+"Trends_ITHitMonitor")
     
     elif (oparation_mode=='2'):
         print "Opening file "+data+"  (it may take several minutes)"
@@ -49,12 +49,12 @@ def PklToHist(data, oparation_mode, histogram_address=histogram_address, plot_ad
                 suffix = coll_TTHitMonitor[run_bin]['comment'].replace(" ","_")
             except:
                 suffix = str(coll_TTHitMonitor[run_bin]["run_start"])+"__"+str(coll_TTHitMonitor[run_bin]["run_stop"])
-            CreateTTHist(coll_TTHitMonitor[run_bin]["data"],variable="unbiased_residual", mode="Mean",suffix= suffix,address=plot_address)
-            CreateTTHist(coll_TTHitMonitor[run_bin]["data"],variable="unbiased_residual", mode="Sigma",suffix=suffix,address=plot_address)
-        print "2D plots created, writing histograms to .root file"            
-        write_histogram(coll_TTHitMonitor, "Monitor",histogram_address+"TTHitMonitor")
-        print "Histograms saved, creating trends"
-        create_monitor_trends(coll_TTHitMonitor, "TT",histogram_address+"Trends_TTHitMonitor")
+            CreateTTHist(coll_TTHitMonitor[run_bin]["data"],variable="mean", mode="Value",suffix= suffix,address=plot_address)
+            CreateTTHist(coll_TTHitMonitor[run_bin]["data"],variable="width", mode="Value",suffix=suffix,address=plot_address)
+        print "2D plots created"#, writing histograms to .root file"            
+        #write_histogram(coll_TTHitMonitor, "Monitor",histogram_address+"TTHitMonitor")
+        #print "Histograms saved, creating trends"
+        #create_monitor_trends(coll_TTHitMonitor, "TT",histogram_address+"Trends_TTHitMonitor")
     
     elif (oparation_mode=='3'):
         print "Opening file "+data+"  (it may take several minutes)"
@@ -67,11 +67,11 @@ def PklToHist(data, oparation_mode, histogram_address=histogram_address, plot_ad
                 suffix = coll_TTHitEfficiency[run_bin]["comment"]
             except:
                 suffix = str(coll_TTHitEfficiency[run_bin]["run_start"])+"__"+str(coll_TTHitEfficiency[run_bin]["run_stop"])
-            CreateTTHist(coll_TTHitEfficiency[run_bin]["data"],variable = "efficiency", mode="Eff",suffix=suffix,address=plot_address)
-        print "2D plots created, writing histograms to .root file"            
-        write_histogram(coll_TTHitEfficiency, "Efficiency",histogram_address+"TTHitEfficiency")
-        print "Histograms saved, creating trends"
-        create_efficiency_trends(coll_TTHitEfficiency, "TT",histogram_address+"Trends_TTHitEfficiency")
+            CreateTTHist(coll_TTHitEfficiency[run_bin]["data"],variable = "efficiency", mode="Value",suffix=suffix,address=plot_address)
+        print "2D plots created"#, writing histograms to .root file"            
+        #write_histogram(coll_TTHitEfficiency, "Efficiency",histogram_address+"TTHitEfficiency")
+        #print "Histograms saved, creating trends"
+        #create_efficiency_trends(coll_TTHitEfficiency, "TT",histogram_address+"Trends_TTHitEfficiency")
     
     elif (oparation_mode=='4'):
         print "Opening file "+data+"  (it may take several minutes)"
@@ -84,11 +84,11 @@ def PklToHist(data, oparation_mode, histogram_address=histogram_address, plot_ad
                 suffix = coll_ITHitEfficiency[run_bin]["comment"]
             except:
                 suffix = str(coll_ITHitEfficiency[run_bin]["run_start"])+"__"+str(coll_ITHitEfficiency[run_bin]["run_stop"])
-            CreateITHist(coll_ITHitEfficiency[run_bin]["data"],variable = "efficiency", mode="Eff",suffix=suffix, address=plot_address)
-        print "2D plots created, writing histograms to .root file"            
-        write_histogram(coll_ITHitEfficiency, "Efficiency",histogram_address+"ITHitEfficiency")
-        print "Histograms saved, creating trends"
-        create_efficiency_trends(coll_ITHitEfficiency, "IT",histogram_address+"Trends_ITHitEfficiency")
+            CreateITHist(coll_ITHitEfficiency[run_bin]["data"],variable = "efficiency", mode="Value",suffix=suffix, address=plot_address)
+        print "2D plots created"#, writing histograms to .root file"            
+        #write_histogram(coll_ITHitEfficiency, "Efficiency",histogram_address+"ITHitEfficiency")
+        #print "Histograms saved, creating trends"
+        #create_efficiency_trends(coll_ITHitEfficiency, "IT",histogram_address+"Trends_ITHitEfficiency")
     
     else:
         print "To run scipt, choose the mode you want to run:"
