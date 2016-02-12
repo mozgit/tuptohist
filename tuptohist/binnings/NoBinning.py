@@ -1,5 +1,7 @@
-bin_name = "AllRuns_2015"
+bin_name = "AllRuns"
 binning=[
-{'run_start':0,
+{
+'comment':"All_runs",
+'run_start':0,
 'run_stop':999999}
 ]

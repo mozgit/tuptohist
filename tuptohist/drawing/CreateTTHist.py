@@ -117,7 +117,13 @@ def CreateTTHist(data, variable,  mode, suffix, address="Plots/", test_mode = Fa
           elif mode =="Value":
             hist.Fill(m_mapping[st_id][0], m_mapping[st_id][1]+i, data[st_id][variable])
             if (i==0) and((maximum<data[st_id][variable]) or (minimum>data[st_id][variable])):
-              print "Atention, "+variable+" of sector "+TT_Map[st_id]+" is out of hist range. The value is "+str(data[st_id][variable])
+              if variable == "efficiency":
+                try:
+                  print "Hit efficiency of sector "+TT_Map[st_id]+" is not shown since it is out of range ($\epsilon = "+str(data[st_id]["efficiency"]) + " \pm "+str(data[st_id]["err_efficiency"])+"$)."
+                except:
+                  print "Atention, "+variable+" of sector "+TT_Map[st_id]+" is out of hist range. The value is "+str(data[st_id][variable])
+              else:
+                print "Atention, "+variable+" of sector "+TT_Map[st_id]+" is out of hist range. The value is "+str(data[st_id][variable])
           else:
             print "Please use one of the following modes: Mean, Sigma, Value"
   
@@ -138,8 +144,8 @@ def CreateTTHist(data, variable,  mode, suffix, address="Plots/", test_mode = Fa
   gROOT.ForceStyle()
 
   if not test_mode:
-    c.SaveAs(address+mode+"_TT_"+suffix+".pdf")
-    c.SaveAs(address+mode+"_TT_"+suffix+".C")
+    c.SaveAs(address+variable+"_"+mode+"_TT_"+suffix+".pdf")
+    c.SaveAs(address+variable+"_"+mode+"_TT_"+suffix+".C")
   return c
 
 if __name__ == "__main__":

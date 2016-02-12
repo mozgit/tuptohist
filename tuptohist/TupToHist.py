@@ -14,6 +14,7 @@ from drawing.Create_Maps import TT_Map as TT_Map_func
 from drawing.Create_Maps import IT_Map as IT_Map_func
 from config import binning
 from config import bin_name
+from config import perform_window_eff_study
 from config import Number_Of_Events
 from config import histogram_address
 from config import plot_address
@@ -27,6 +28,7 @@ binning
 bin_name
 
 def TupToHist(data, oparation_mode, Number_Of_Events=Number_Of_Events, pkl_address=pkl_address, histogram_address=histogram_address, plot_address=plot_address):
+    global perform_window_eff_study
 
     IT_Map=IT_Map_func()
     TT_Map=TT_Map_func()
@@ -59,7 +61,7 @@ def TupToHist(data, oparation_mode, Number_Of_Events=Number_Of_Events, pkl_addre
                 suffix =str(coll_ITHitMonitor[run_bin]["run_start"])+"__"+str(coll_ITHitMonitor[run_bin]["run_stop"])
             CreateITHist(coll_ITHitMonitor[run_bin]["data"], variable = "mean", mode="Value",suffix = suffix, address=plot_address)
             CreateITHist(coll_ITHitMonitor[run_bin]["data"], variable = "width", mode="Value",suffix = suffix, address=plot_address)
-        with open(pkl_address+'ITHitMonitor.pkl', 'wb') as basket:
+        with open(pkl_address+'ITHitMonitor_'+bin_name+'.pkl', 'wb') as basket:
             pickle.dump(coll_ITHitMonitor, basket)
         create_monitor_trends(coll_ITHitMonitor, "IT", histogram_address+"Trends_ITHitMonitor"+"__"+bin_name+"_")
     
@@ -89,7 +91,7 @@ def TupToHist(data, oparation_mode, Number_Of_Events=Number_Of_Events, pkl_addre
                 suffix = str(coll_TTHitMonitor[run_bin]["run_start"])+"__"+str(coll_TTHitMonitor[run_bin]["run_stop"])
             CreateTTHist(coll_TTHitMonitor[run_bin]["data"],variable = "mean", mode="Value",suffix= suffix,address=plot_address)
             CreateTTHist(coll_TTHitMonitor[run_bin]["data"],variable = "width", mode="Value",suffix=suffix,address=plot_address)           
-        with open(pkl_address+'TTHitMonitor.pkl', 'wb') as basket:
+        with open(pkl_address+'TTHitMonitor_'+bin_name+'.pkl', 'wb') as basket:
             pickle.dump(coll_TTHitMonitor, basket)        
         create_monitor_trends(coll_TTHitMonitor, "TT",histogram_address+"Trends_TTHitMonitor"+"__"+bin_name+"_")
     
@@ -111,6 +113,9 @@ def TupToHist(data, oparation_mode, Number_Of_Events=Number_Of_Events, pkl_addre
                         coll_TTHitEfficiency[run_bin]["data"][s.clusterSTchanMapID[hit]]["nbFound"]+=s.isFound[hit]
                         coll_TTHitEfficiency[run_bin]["data"][s.clusterSTchanMapID[hit]]["nbExpected"]+=s.isExpected[hit]
         coll_TTHitEfficiency = find_efficiency(coll_TTHitEfficiency)
+        if perform_window_eff_study:
+            coll_TTHitEfficiency = window_eff_study(coll_TTHitEfficiency)
+            write_window_eff_study(coll_TTHitEfficiency, "Efficiency", histogram_address+"TTHitEfficiency"+"_"+bin_name+"_efficiency_study_")
         write_histogram(coll_TTHitEfficiency, "Efficiency",histogram_address+"TTHitEfficiency"+"__"+bin_name+"_")        
         coll_TTHitEfficiency = make_coll_lite(coll = coll_TTHitEfficiency, det = "TT", mode = "Efficiency")
         for run_bin in coll_TTHitEfficiency:
@@ -119,7 +124,7 @@ def TupToHist(data, oparation_mode, Number_Of_Events=Number_Of_Events, pkl_addre
             except:
                 suffix = str(coll_TTHitEfficiency[run_bin]["run_start"])+"__"+str(coll_TTHitEfficiency[run_bin]["run_stop"])
             CreateTTHist(coll_TTHitEfficiency[run_bin]["data"],variable="efficiency", mode="Value",suffix=suffix,address=plot_address)
-        with open(pkl_address+'TTHitEfficiency.pkl', 'wb') as basket:
+        with open(pkl_address+'TTHitEfficiency_'+bin_name+'.pkl', 'wb') as basket:
             pickle.dump(coll_TTHitEfficiency, basket)        
         create_efficiency_trends(coll_TTHitEfficiency, "TT",histogram_address+"Trends_TTHitEfficiency"+"__"+bin_name+"_")
     
@@ -141,6 +146,9 @@ def TupToHist(data, oparation_mode, Number_Of_Events=Number_Of_Events, pkl_addre
                         coll_ITHitEfficiency[run_bin]["data"][s.clusterSTchanMapID[hit]]["nbFound"]+=s.isFound[hit]
                         coll_ITHitEfficiency[run_bin]["data"][s.clusterSTchanMapID[hit]]["nbExpected"]+=s.isExpected[hit]
         coll_ITHitEfficiency = find_efficiency(coll_ITHitEfficiency)
+        if perform_window_eff_study:
+            coll_ITHitEfficiency = window_eff_study(coll_ITHitEfficiency)
+            write_window_eff_study(coll_ITHitEfficiency, "Efficiency", histogram_address+"ITHitEfficiency"+"_"+bin_name+"_efficiency_study_")
         write_histogram(coll_ITHitEfficiency, "Efficiency",histogram_address+"ITHitEfficiency"+"__"+bin_name+"_")        
         coll_ITHitEfficiency = make_coll_lite(coll = coll_ITHitEfficiency, det = "IT", mode = "Efficiency")    
         for run_bin in coll_ITHitEfficiency:
@@ -149,7 +157,7 @@ def TupToHist(data, oparation_mode, Number_Of_Events=Number_Of_Events, pkl_addre
             except:
                 suffix = str(coll_ITHitEfficiency[run_bin]["run_start"])+"__"+str(coll_ITHitEfficiency[run_bin]["run_stop"])
             CreateITHist(coll_ITHitEfficiency[run_bin]["data"],variable="efficiency", mode="Value",suffix=suffix, address=plot_address)
-        with open(pkl_address+'ITHitEfficiency.pkl', 'wb') as basket:
+        with open(pkl_address+'ITHitEfficiency_'+bin_name+'.pkl', 'wb') as basket:
             pickle.dump(coll_ITHitEfficiency, basket)                
         create_efficiency_trends(coll_ITHitEfficiency, "IT",histogram_address+"Trends_ITHitEfficiency"+"__"+bin_name+"_")
     

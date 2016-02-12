@@ -117,7 +117,13 @@ def CreateITHist(data,variable, mode, suffix, address="Plots/", test_mode=False)
       elif mode =="Value":
         hist.Fill(m_mapping[st_id][0], m_mapping[st_id][1], data[st_id][variable])
         if (maximum<data[st_id][variable]) or (minimum>data[st_id][variable]):
-          print "Atention, "+variable+" of sector "+IT_Map[st_id]+" is out of hist range. The value is "+str(data[st_id][variable])
+          if variable == "efficiency":
+            try:
+              print "Hit efficiency of sector "+IT_Map[st_id]+" is not shown since it is out of range ($\epsilon = "+str(data[st_id]["efficiency"]) + " \pm "+str(data[st_id]["err_efficiency"])+"$)."
+            except:
+              print "Atention, "+variable+" of sector "+IT_Map[st_id]+" is out of hist range. The value is "+str(data[st_id][variable])
+          else:
+            print "Atention, "+variable+" of sector "+IT_Map[st_id]+" is out of hist range. The value is "+str(data[st_id][variable])
       else:
         print "Please use one of the following modes: Mean, Sigma, Value"
   
@@ -137,8 +143,8 @@ def CreateITHist(data,variable, mode, suffix, address="Plots/", test_mode=False)
   gStyle.SetOptFit(1111110)
   gROOT.ForceStyle()
   if not test_mode:
-    c.SaveAs(address+mode+"_IT_"+suffix+".pdf")
-    c.SaveAs(address+mode+"_IT_"+suffix+".C")
+    c.SaveAs(address+variable+"_"+mode+"_IT_"+suffix+".pdf")
+    c.SaveAs(address+variable+"_"+mode+"_IT_"+suffix+".C")
   return c
  
 if __name__ == "__main__":
