@@ -4,10 +4,10 @@ Here you may configure behaviour of the package.
 #########
 #General#
 #########
-#from binnings.NoBinning_2015 import binning #Choose a time binning
-#from binnings.NoBinning_2015 import bin_name #Choose a time binning
-from binnings.NoBinning_2012 import binning #Choose a time binning
-from binnings.NoBinning_2012 import bin_name #Choose a time binning
+from binnings.NoBinning_2015 import binning #Choose a time binning
+from binnings.NoBinning_2015 import bin_name #Choose a time binning
+#from binnings.NoBinning_2012 import binning #Choose a time binning
+#from binnings.NoBinning_2012 import bin_name #Choose a time binning
 #from binnings.BinByMonth_2012 import binning #Choose a time binning
 #from binnings.BinByMonth_2012 import bin_name #Choose a time binning
 #from binnings.BinByMonth_2015 import binning #Choose a time binning

@@ -30,13 +30,18 @@ gStyle.SetOptStat(False)
 
 
 def syntax_explanation(script):
-    print "Incorrect syntax. Please run with:"
-    print "python "+script+" <data_file> <mode>"
-    print "<mode> here:"
-    print "1 - IT Hit Monitor"
-    print "2 - TT Hit Monitor"
-    print "3 - TT Hit Efficiency"
-    print "4 - IT Hit Efficiency"
+    if script == "SingleTrend.py":
+        print "Incorrect syntax. Please run with:"
+        print "python "+script+" <pkl_data_file> <sector_name>"
+        print "Plese use sector names like 'TTaXRegionBSector9'"
+    else:
+        print "Incorrect syntax. Please run with:"
+        print "python "+script+" <data_file> <mode>"
+        print "<mode> here:"
+        print "1 - IT Hit Monitor"
+        print "2 - TT Hit Monitor"
+        print "3 - TT Hit Efficiency"
+        print "4 - IT Hit Efficiency"
     return True 
 
 def cli_progress_test(i, end_val, start, bar_length=20):
@@ -269,7 +274,53 @@ def create_monitor_trends(lite_coll, det, name):
         ubresidual_mean.Write()
         ubresidual_width.Write()
     f.Close()
+    print "Residual trends created at "+name+"histos.root"
     return True
+
+def create_single_monitor_trend(lite_coll, sector, plot_address):
+    setcor_is_found = False
+    if "IT" in sector:
+        ST_Map = IT_Map_func()
+    else:
+        ST_Map = TT_Map_func()
+    for i in ST_Map:
+        if ST_Map[i]==sector:
+            st_id = i
+            break
+    if not st_id:
+        print "Wrong sector. Plese use sector names like 'TTaXRegionBSector9'"
+        return False
+    ubresidual_mean = R.TH1F(sector,"Changes of hit residual mean (rms-unbiased) of "+sector+";;Bias, [mm]",len(lite_coll),0,1)
+    ubresidual_width = R.TH1F(sector,"Changes of hit residual width rms-unbiased of "+sector+";;Resolution, [mm]",len(lite_coll),0,1)
+    for i, run_bin in enumerate(sorted(lite_coll.keys())):
+        if st_id in lite_coll[run_bin]["data"]:
+            setcor_is_found = True
+            ubresidual_mean.SetBinContent(i+1, lite_coll[run_bin]["data"][st_id]["mean"])
+            ubresidual_mean.SetBinError(i+1, lite_coll[run_bin]["data"][st_id]["width"])
+            ubresidual_mean.GetXaxis().SetNdivisions(-414)
+            try:
+                ubresidual_mean.GetXaxis().SetBinLabel(i+1,lite_coll[run_bin]["comment"])
+            except:
+                ubresidual_mean.GetXaxis().SetBinLabel(i+1,str(lite_coll[run_bin]["run_start"])+"-"+str(lite_coll[run_bin]["run_stop"]))
+            ubresidual_width.SetBinContent(i+1, lite_coll[run_bin]["data"][st_id]["width"])
+            ubresidual_width.GetXaxis().SetNdivisions(-414)
+            try:
+                ubresidual_width.GetXaxis().SetBinLabel(i+1,lite_coll[run_bin]["comment"])
+            except:
+                ubresidual_width.GetXaxis().SetBinLabel(i+1,str(lite_coll[run_bin]["run_start"])+"-"+str(lite_coll[run_bin]["run_stop"]))
+    if not setcor_is_found:
+        print "Trends are empty, please check that you use correct dataset for chosen sector"
+        return False
+    c1 = R.TCanvas("c1","c1",600,600)
+    ubresidual_mean.Draw()
+    c1.SaveAs(plot_address+"/Trend_Mean_Sector_"+sector+".pdf")
+    c1.SaveAs(plot_address+"/Trend_Mean_Sector_"+sector+".C")
+    c2 = R.TCanvas("c2","c2",600,600)
+    ubresidual_width.Draw()
+    c2.SaveAs(plot_address+"/Trend_Width_Sector_"+sector+".pdf")
+    c2.SaveAs(plot_address+"/Trend_Width_Sector_"+sector+".C")
+    return True
+
 
 def create_efficiency_trends(lite_coll, det, name):
     f = R.TFile(name+"histos.root","recreate")
@@ -289,6 +340,40 @@ def create_efficiency_trends(lite_coll, det, name):
                 efficiency.GetXaxis().SetBinLabel(i+1,str(lite_coll[run_bin]["run_start"])+"-"+str(lite_coll[run_bin]["run_stop"]))
         efficiency.Write()
     f.Close()
+    print "Efficiency trends created at "+name+"histos.root"
+    return True
+
+def create_single_efficiency_trend(lite_coll, sector, plot_address):
+    setcor_is_found = False
+    if "IT" in sector:
+        ST_Map = IT_Map_func()
+    else:
+        ST_Map = TT_Map_func()
+    for i in ST_Map:
+        if ST_Map[i]==sector:
+            st_id = i
+            break
+    if not st_id:
+        print "Wrong sector. Plese use sector names like 'TTaXRegionBSector9'"
+        return False
+    efficiency = R.TH1F(sector,"Changes of hit efficiency of "+sector+";;Efficiency",len(lite_coll),0,1)
+    for i, run_bin in enumerate(sorted(lite_coll.keys())):
+        if st_id in lite_coll[run_bin]["data"]:
+            setcor_is_found = True
+            efficiency.SetBinContent(i+1, lite_coll[run_bin]["data"][st_id]["efficiency"])
+            efficiency.SetBinError(i+1, lite_coll[run_bin]["data"][st_id]["err_efficiency"])
+            efficiency.GetXaxis().SetNdivisions(-414)
+            try:
+                efficiency.GetXaxis().SetBinLabel(i+1,lite_coll[run_bin]["comment"])
+            except:            
+                efficiency.GetXaxis().SetBinLabel(i+1,str(lite_coll[run_bin]["run_start"])+"-"+str(lite_coll[run_bin]["run_stop"]))
+    if not setcor_is_found:
+        print "Trends are empty, please check that you use correct dataset for chosen sector"
+        return False
+    c1 = R.TCanvas("c1","c1",600,600)
+    efficiency.Draw()
+    c1.SaveAs(plot_address+"/Trend_Efficiency_Sector_"+sector+".pdf")
+    c1.SaveAs(plot_address+"/Trend_Efficiency_Sector_"+sector+".C")
     return True
 
 
