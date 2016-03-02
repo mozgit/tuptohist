@@ -100,7 +100,8 @@ def CreateTTHist(data, variable,  mode, suffix, address="Plots/", test_mode = Fa
     maximum = TTEffRange[1]
     minimum = TTEffRange[0]
     title = "Hit efficiency"
-  
+
+  masked_sectors = []  
 
   hist  = R.TH2D("hist", title, nBinsX, lowX, upX, nBinsY, lowY, upY)
   if not test_mode:
@@ -109,14 +110,17 @@ def CreateTTHist(data, variable,  mode, suffix, address="Plots/", test_mode = Fa
           if mode =="Mean":
             hist.Fill(m_mapping[st_id][0], m_mapping[st_id][1]+i, data[st_id][variable].GetMean())
             if (i==0) and((maximum<data[st_id][variable].GetMean()) or (minimum>data[st_id][variable].GetMean())):
+              masked_sectors.append(TT_Map[st_id])
               print "Atention, hit bias of sector "+TT_Map[st_id]+" is out of hist range. The value is "+str(data[st_id][variable].GetMean())
           elif mode =="Sigma":
             hist.Fill(m_mapping[st_id][0], m_mapping[st_id][1]+i, data[st_id][variable].GetRMS())
             if (i==0) and((maximum<data[st_id][variable].GetRMS()) or (minimum>data[st_id][variable].GetRMS())):
+              masked_sectors.append(TT_Map[st_id])
               print "Atention, resolution of sector "+TT_Map[st_id]+" is out of hist range. The value is "+str(data[st_id][variable].GetRMS())
           elif mode =="Value":
             hist.Fill(m_mapping[st_id][0], m_mapping[st_id][1]+i, data[st_id][variable])
             if (i==0) and((maximum<data[st_id][variable]) or (minimum>data[st_id][variable])):
+              masked_sectors.append(TT_Map[st_id])
               if variable == "efficiency":
                 try:
                   print "Hit efficiency of sector "+TT_Map[st_id]+" is not shown since it is out of range ($\epsilon = "+str(data[st_id]["efficiency"]) + " \pm "+str(data[st_id]["err_efficiency"])+"$)."
@@ -136,7 +140,7 @@ def CreateTTHist(data, variable,  mode, suffix, address="Plots/", test_mode = Fa
   hist.Draw("COLZ")
   #if test_mode:
     
-  PlotTTBoxes(hist,nBinsX, lowX, upX, nBinsY, lowY, upY)
+  PlotTTBoxes(hist,nBinsX, lowX, upX, nBinsY, lowY, upY, masked_sectors)
   PlotTTLabels(hist)
 
   gStyle.SetOptStat(1111110)

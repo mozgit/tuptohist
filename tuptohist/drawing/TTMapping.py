@@ -152,7 +152,7 @@ def TTNumberOfSensors(st_id):
           return 1
       
     
-def PlotTTBoxes(hist, nBinsX, lowX, upX, nBinsY, lowY, upY):
+def PlotTTBoxes(hist, nBinsX, lowX, upX, nBinsY, lowY, upY,masked_sectors):
   box = R.TBox()
   box.SetFillColor(R.kWhite)
   box.SetFillStyle(0)
@@ -192,7 +192,8 @@ def PlotTTBoxes(hist, nBinsX, lowX, upX, nBinsY, lowY, upY):
 
   for st_id in TT_Map.values():
     box.DrawBox(TTMapping(st_id)[0]-0.5,TTMapping(st_id)[1]-0.5, TTMapping(st_id)[0]+0.5,TTMapping(st_id)[1]+0.5+TTNumberOfSensors(st_id)-1.)
-    if(hist.GetBinContent( hist.GetXaxis().FindBin(TTMapping(st_id)[0]), hist.GetYaxis().FindBin(TTMapping(st_id)[1]) )==0):
+    #if(hist.GetBinContent( hist.GetXaxis().FindBin(TTMapping(st_id)[0]), hist.GetYaxis().FindBin(TTMapping(st_id)[1]) )==0):
+    if st_id in masked_sectors:
       boxwhite.DrawBox(TTMapping(st_id)[0]-0.5,TTMapping(st_id)[1]-0.5, TTMapping(st_id)[0]+0.5,TTMapping(st_id)[1]+0.5+TTNumberOfSensors(st_id)-1.)
       boxempty.DrawBox(TTMapping(st_id)[0]-0.5,TTMapping(st_id)[1]-0.5, TTMapping(st_id)[0]+0.5,TTMapping(st_id)[1]+0.5+TTNumberOfSensors(st_id)-1.)
 

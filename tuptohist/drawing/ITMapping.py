@@ -26,7 +26,7 @@ def ITMapping(st_id):
         return[x,y]
 
 
-def PlotITBoxes(hist, nBinsX, lowX, upX, nBinsY, lowY, upY):
+def PlotITBoxes(hist, nBinsX, lowX, upX, nBinsY, lowY, upY, masked_sectors):
   box = R.TBox()
   box.SetFillColor(R.kBlack)
   box.SetFillStyle(0)
@@ -64,9 +64,13 @@ def PlotITBoxes(hist, nBinsX, lowX, upX, nBinsY, lowY, upY):
 
   for st_id in IT_Map.values():
     box.DrawBox(ITMapping(st_id)[0]-0.5,ITMapping(st_id)[1]-0.25, ITMapping(st_id)[0]+0.5,ITMapping(st_id)[1]+0.25)
-    if(hist.GetBinContent( hist.GetXaxis().FindBin(ITMapping(st_id)[0]), hist.GetYaxis().FindBin(ITMapping(st_id)[1]) )==0):
+    #if(hist.GetBinContent( hist.GetXaxis().FindBin(ITMapping(st_id)[0]), hist.GetYaxis().FindBin(ITMapping(st_id)[1]) )==0):
+      #boxwhite.DrawBox(ITMapping(st_id)[0]-0.5,ITMapping(st_id)[1]-0.25, ITMapping(st_id)[0]+0.5,ITMapping(st_id)[1]+0.25)
+      #boxempty.DrawBox(ITMapping(st_id)[0]-0.5,ITMapping(st_id)[1]-0.25, ITMapping(st_id)[0]+0.5,ITMapping(st_id)[1]+0.25)
+    if st_id in masked_sectors:
       boxwhite.DrawBox(ITMapping(st_id)[0]-0.5,ITMapping(st_id)[1]-0.25, ITMapping(st_id)[0]+0.5,ITMapping(st_id)[1]+0.25)
       boxempty.DrawBox(ITMapping(st_id)[0]-0.5,ITMapping(st_id)[1]-0.25, ITMapping(st_id)[0]+0.5,ITMapping(st_id)[1]+0.25)
+
 
   return True
  

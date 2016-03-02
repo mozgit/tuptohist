@@ -52,9 +52,10 @@ def PklAlgebra(dataset_1, dataset_2,formula,  pkl_address=pkl_address):
             tot_coll[run_bin]['data'][st_id]={}
             for val in ds_1[run_bin]['data'][st_id]:
                 a = ds_1[run_bin]['data'][st_id][val]
-                b = ds_1[run_bin]['data'][st_id][val]
+                b = ds_2[run_bin]['data'][st_id][val]
                 try:
                     tot_coll[run_bin]['data'][st_id][val]=eval(code)
+                    #print "a = "+str(a)+", b = "+str(b)+"; "+formula+" = "+str(eval(code))
                 except:
                     print "Failed to calculate formula for "+val+" for the sector "+str(st_id)
                     tot_coll[run_bin]['data'][st_id][val]=0

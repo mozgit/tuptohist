@@ -4,10 +4,10 @@ Here you may configure behaviour of the package.
 #########
 #General#
 #########
-from binnings.NoBinning_2015 import binning #Choose a time binning
-from binnings.NoBinning_2015 import bin_name #Choose a time binning
-#from binnings.NoBinning_2012 import binning #Choose a time binning
-#from binnings.NoBinning_2012 import bin_name #Choose a time binning
+#from binnings.NoBinning_2015 import binning #Choose a time binning
+#from binnings.NoBinning_2015 import bin_name #Choose a time binning
+from binnings.NoBinning import binning #Choose a time binning
+from binnings.NoBinning import bin_name #Choose a time binning
 #from binnings.BinByMonth_2012 import binning #Choose a time binning
 #from binnings.BinByMonth_2012 import bin_name #Choose a time binning
 #from binnings.BinByMonth_2015 import binning #Choose a time binning
@@ -27,13 +27,13 @@ residual_nBins = 100 #number of bins in residual histograms
 #Histogram ranges#
 ##################
 UsePredefinedRanges = True
-ITMeanRange         = [-0.03, 0.03]
-ITWidthRange        = [0.02, 0.06]
-ITEffRange          = [0.995, 1.0]
+ITMeanRange         = [-1000, 1000]
+ITWidthRange        = [0.8, 1.2]
+ITEffRange          = [0.95, 1.05]
 
-TTMeanRange         = [-0.03, 0.03]
-TTWidthRange        = [0.02, 0.06]
-TTEffRange          = [0.98, 1.0]
+TTMeanRange         = [-1000, 1000]
+TTWidthRange        = [0.8, 1.2]
+TTEffRange          = [0.95, 1.05]
 
 ###################################################
 #Dependence of efficiency from search window study#
