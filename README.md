@@ -20,7 +20,7 @@ where mode is a flag indicating what type of a histograms is desired:
 
 
 In addition, all modes will create trend histograms of values of inerest, which shows variation of this value for each sector in time bins.
-Plus, .pkl file will be created. This fille allows to redo 2D plots woth PklToHist function if needed. This might be usefull, since processing of original tuple file requires some time. It should be noted, that time binning is already included in .pkl files, so if you need to reanalyze yout data with other time bins, TupToHist function.
+Plus, .pkl file will be created. This fille allows to redo 2D plots woth PklToHist function if needed. This might be usefull, since processing of original tuple file requires some time. 
 
 All configurables of this package are stored in config.py file. While most of the variables are quite self-explainatory, you may pay an attention on ``binning'' variable. This variable defines time binnning which will be used for processing the data. Some of the binnings are collected in binning/ folder, so you may choose from there or add your own.
 
@@ -29,3 +29,11 @@ Please make sure that you have directories to store outputs of the functions. De
 ##Making 2D plots
 
 This package also has functions creating 2D maps of IT and TT. These functions are stored in drawing/ folder. The main scripts which you will want to run are Create{IT,TT}Hist.py. Corresponding fuctions are docimented in a code.
+
+##Per-sector trends
+
+The package allows to build trends of variable of interest for a given sector from .pkl file (obtained by TupToHist finction).
+To do this, run 
+```
+python SingleTrend.py <data_file>.pkl <sector name>
+```
