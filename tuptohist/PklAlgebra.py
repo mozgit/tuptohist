@@ -16,7 +16,7 @@ gStyle.SetOptStat(False)
 #from ROOT import RooFit as RF
 
 
-def PklAlgebra(dataset_1, dataset_2,formula,  pkl_address=pkl_address):
+def PklAlgebra(dataset_1, dataset_2,formula, variable, pkl_address=pkl_address):
     text_formula="_"+formula.replace("/","_over_").replace("*","_times_").replace("+","_plus_").replace("-","_minus_")+"_"
 
     code = parser.expr(formula).compile()
@@ -50,15 +50,32 @@ def PklAlgebra(dataset_1, dataset_2,formula,  pkl_address=pkl_address):
                 print "ERROR: Different structure of information in datasets. Please use .pkls which correspond to the same operation mode"
                 return False
             tot_coll[run_bin]['data'][st_id]={}
-            for val in ds_1[run_bin]['data'][st_id]:
-                a = ds_1[run_bin]['data'][st_id][val]
-                b = ds_2[run_bin]['data'][st_id][val]
+            if variable == "all":
+                for val in ds_1[run_bin]['data'][st_id]:
+                    a = ds_1[run_bin]['data'][st_id][val]
+                    b = ds_2[run_bin]['data'][st_id][val]
+                    try:
+                        tot_coll[run_bin]['data'][st_id][val]=eval(code)
+                        #print "a = "+str(a)+", b = "+str(b)+"; "+formula+" = "+str(eval(code))
+                    except:
+                        print "Failed to calculate formula for "+val+" for the sector "+str(st_id)
+                        tot_coll[run_bin]['data'][st_id][val]=0
+            elif variable not in ds_1[run_bin]['data'][st_id]:
+                print "Requested variable is not in dataset. These dataset contain following variables:"
+                for val in ds_1[run_bin]['data'][st_id]:
+                    print val
+                print "Exiting."
+                return False
+            else:
+                a = ds_1[run_bin]['data'][st_id][variable]
+                b = ds_2[run_bin]['data'][st_id][variable]
                 try:
-                    tot_coll[run_bin]['data'][st_id][val]=eval(code)
+                    tot_coll[run_bin]['data'][st_id][variable]=eval(code)
                     #print "a = "+str(a)+", b = "+str(b)+"; "+formula+" = "+str(eval(code))
                 except:
-                    print "Failed to calculate formula for "+val+" for the sector "+str(st_id)
-                    tot_coll[run_bin]['data'][st_id][val]=0
+                    print "Failed to calculate formula for "+variable+" for the sector "+str(st_id)
+                    tot_coll[run_bin]['data'][st_id][variable]=0
+
     with open(pkl_address+text_formula+'with_a_as_'+dataset_1.split('/')[-1].replace(".pkl","")+'_and_b_as_'+dataset_2.split('/')[-1].replace(".pkl","")+'.pkl', 'wb') as basket:
         pickle.dump(tot_coll, basket)                
 
@@ -72,7 +89,15 @@ if __name__ == "__main__":
         ds_1 = sys.argv[1]
         ds_2 = sys.argv[2]
         print "Evaluating formula "+formula
-        PklAlgebra(ds_1, ds_2, formula)
+        PklAlgebra(ds_1, ds_2, formula, "all")
+    elif len(sys.argv)==5:
+        formula = sys.argv[3]
+        ds_1 = sys.argv[1]
+        ds_2 = sys.argv[2]
+        variable = sys.argv[4]
+        print "Evaluating formula "+formula
+        PklAlgebra(ds_1, ds_2, formula, variable)
+
     else:
         syntax_explanation("PklAlgebra.py")
        

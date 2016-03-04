@@ -36,9 +36,11 @@ def syntax_explanation(script):
         print "Plese use sector names like 'TTaXRegionBSector9'"
     elif script == "PklAlgebra.py":
         print "Incorrect syntax. Please run with:"
-        print "python "+script+" <pkl_1> <pkl_2> <formula with a for ds1, b for ds2>"
+        print "python "+script+" <pkl_1> <pkl_2> <formula with a for ds1, b for ds2> <optinaly: variable of interest>"
         print "For example:"
-        print "python "+script+" ds1.pkl ds2.pkl a+b"
+        print "python "+script+" ds1.pkl ds2.pkl a+b efficiency"
+        print "This command will create a new collection containing sum of efficiencies."
+        print "If you will not specify variable, all variables in collection will be calculated."
         print "Please use .pkls with collections, which have the same time binning"
         print "Please use .pkls with collections, which describe the same detectors"
         print "Please use .pkls which correspond to the same operation mode"
@@ -261,31 +263,57 @@ def write_window_eff_study(coll, mode, name):
     return True
 
 def create_monitor_trends(lite_coll, det, name):
+    #Check if requested variable is in collection.
+    mean_in_collection = False
+    width_in_collection = False
+    for bin in lite_coll:
+        for st_id in lite_coll[bin]["data"]:
+            if "mean" in lite_coll[bin]["data"][st_id]:
+                mean_in_collection = True
+                name+="_mean_"
+                break
+    for bin in lite_coll:
+        for st_id in lite_coll[bin]["data"]:
+            if "width" in lite_coll[bin]["data"][st_id]:
+                width_in_collection = True
+                name+="_width_"
+                break            
+    if not (mean_in_collection or width_in_collection):
+        return False
+
     f = R.TFile(name+"histos.root","recreate")
     f.cd()
     if det == "IT":
         ST_Map = IT_Map_func()
     else:
         ST_Map = TT_Map_func()
+
     for st_id in ST_Map:
-        ubresidual_mean = R.TH1F("bias:trend:RMSNB:M_"+ST_Map[st_id],"Changes of hit residual mean (rms-unbiased);;Bias, [mm]",len(lite_coll),0,1)
-        ubresidual_width = R.TH1F("width:trend:RMSNB:M_"+ST_Map[st_id],"Changes of hit residual width rms-unbiased;;Resolution, [mm]",len(lite_coll),0,1)
+        if mean_in_collection:
+            ubresidual_mean = R.TH1F("bias:trend:RMSNB:M_"+ST_Map[st_id],"Changes of hit residual mean (rms-unbiased);;Bias, [mm]",len(lite_coll),0,1)
+        if width_in_collection:
+            ubresidual_width = R.TH1F("width:trend:RMSNB:M_"+ST_Map[st_id],"Changes of hit residual width rms-unbiased;;Resolution, [mm]",len(lite_coll),0,1)
         for i, run_bin in enumerate(sorted(lite_coll.keys())):
-            ubresidual_mean.SetBinContent(i+1, lite_coll[run_bin]["data"][st_id]["mean"])
-            ubresidual_mean.SetBinError(i+1, lite_coll[run_bin]["data"][st_id]["width"])
-            ubresidual_mean.GetXaxis().SetNdivisions(-414)
-            try:
-                ubresidual_mean.GetXaxis().SetBinLabel(i+1,lite_coll[run_bin]["comment"])
-            except:
-                ubresidual_mean.GetXaxis().SetBinLabel(i+1,str(lite_coll[run_bin]["run_start"])+"-"+str(lite_coll[run_bin]["run_stop"]))
-            ubresidual_width.SetBinContent(i+1, lite_coll[run_bin]["data"][st_id]["width"])
-            ubresidual_width.GetXaxis().SetNdivisions(-414)
-            try:
-                ubresidual_width.GetXaxis().SetBinLabel(i+1,lite_coll[run_bin]["comment"])
-            except:
-                ubresidual_width.GetXaxis().SetBinLabel(i+1,str(lite_coll[run_bin]["run_start"])+"-"+str(lite_coll[run_bin]["run_stop"]))
-        ubresidual_mean.Write()
-        ubresidual_width.Write()
+            if mean_in_collection:
+                ubresidual_mean.SetBinContent(i+1, lite_coll[run_bin]["data"][st_id]["mean"])
+                if width_in_collection:
+                    ubresidual_mean.SetBinError(i+1, lite_coll[run_bin]["data"][st_id]["width"])
+                ubresidual_mean.GetXaxis().SetNdivisions(-414)
+                try:
+                    ubresidual_mean.GetXaxis().SetBinLabel(i+1,lite_coll[run_bin]["comment"])
+                except:
+                    ubresidual_mean.GetXaxis().SetBinLabel(i+1,str(lite_coll[run_bin]["run_start"])+"-"+str(lite_coll[run_bin]["run_stop"]))
+            if width_in_collection:
+                ubresidual_width.SetBinContent(i+1, lite_coll[run_bin]["data"][st_id]["width"])
+                ubresidual_width.GetXaxis().SetNdivisions(-414)
+                try:
+                    ubresidual_width.GetXaxis().SetBinLabel(i+1,lite_coll[run_bin]["comment"])
+                except:
+                    ubresidual_width.GetXaxis().SetBinLabel(i+1,str(lite_coll[run_bin]["run_start"])+"-"+str(lite_coll[run_bin]["run_stop"]))
+        if mean_in_collection:
+            ubresidual_mean.Write()
+        if width_in_collection:
+            ubresidual_width.Write()
     f.Close()
     print "Residual trends created at "+name+"histos.root"
     return True
@@ -303,39 +331,72 @@ def create_single_monitor_trend(lite_coll, sector, plot_address):
     if not st_id:
         print "Wrong sector. Plese use sector names like 'TTaXRegionBSector9'"
         return False
-    ubresidual_mean = R.TH1F(sector,"Changes of hit residual mean (rms-unbiased) of "+sector+";;Bias, [mm]",len(lite_coll),0,1)
-    ubresidual_width = R.TH1F(sector,"Changes of hit residual width rms-unbiased of "+sector+";;Resolution, [mm]",len(lite_coll),0,1)
-    for i, run_bin in enumerate(sorted(lite_coll.keys())):
-        if st_id in lite_coll[run_bin]["data"]:
-            setcor_is_found = True
-            ubresidual_mean.SetBinContent(i+1, lite_coll[run_bin]["data"][st_id]["mean"])
-            ubresidual_mean.SetBinError(i+1, lite_coll[run_bin]["data"][st_id]["width"])
-            ubresidual_mean.GetXaxis().SetNdivisions(-414)
-            try:
-                ubresidual_mean.GetXaxis().SetBinLabel(i+1,lite_coll[run_bin]["comment"])
-            except:
-                ubresidual_mean.GetXaxis().SetBinLabel(i+1,str(lite_coll[run_bin]["run_start"])+"-"+str(lite_coll[run_bin]["run_stop"]))
-            ubresidual_width.SetBinContent(i+1, lite_coll[run_bin]["data"][st_id]["width"])
-            ubresidual_width.GetXaxis().SetNdivisions(-414)
-            try:
-                ubresidual_width.GetXaxis().SetBinLabel(i+1,lite_coll[run_bin]["comment"])
-            except:
-                ubresidual_width.GetXaxis().SetBinLabel(i+1,str(lite_coll[run_bin]["run_start"])+"-"+str(lite_coll[run_bin]["run_stop"]))
+
+    #Check if requested variable is in collection.
+    mean_in_collection = False
+    width_in_collection = False
+    for bin in lite_coll:
+        if st_id in lite_coll[bin]["data"]:
+            if "mean" in lite_coll[bin]["data"][st_id]:
+                setcor_is_found = True
+                mean_in_collection = True
+                break
+    for bin in lite_coll:
+        if st_id in lite_coll[bin]["data"]:
+            if "width" in lite_coll[bin]["data"][st_id]:
+                setcor_is_found = True
+                width_in_collection = True
+                break            
+    if not (mean_in_collection or width_in_collection):
+        return False
     if not setcor_is_found:
         print "Trends are empty, please check that you use correct dataset for chosen sector"
         return False
-    c1 = R.TCanvas("c1","c1",600,600)
-    ubresidual_mean.Draw()
-    c1.SaveAs(plot_address+"/Trend_Mean_Sector_"+sector+".pdf")
-    c1.SaveAs(plot_address+"/Trend_Mean_Sector_"+sector+".C")
-    c2 = R.TCanvas("c2","c2",600,600)
-    ubresidual_width.Draw()
-    c2.SaveAs(plot_address+"/Trend_Width_Sector_"+sector+".pdf")
-    c2.SaveAs(plot_address+"/Trend_Width_Sector_"+sector+".C")
+
+    if mean_in_collection:
+        ubresidual_mean = R.TH1F(sector,"Changes of hit residual mean (rms-unbiased) of "+sector+";;Bias, [mm]",len(lite_coll),0,1)
+    if width_in_collection:
+        ubresidual_width = R.TH1F(sector,"Changes of hit residual width rms-unbiased of "+sector+";;Resolution, [mm]",len(lite_coll),0,1)
+    for i, run_bin in enumerate(sorted(lite_coll.keys())):
+        if st_id in lite_coll[run_bin]["data"]:
+            if mean_in_collection:
+                ubresidual_mean.SetBinContent(i+1, lite_coll[run_bin]["data"][st_id]["mean"])
+                if width_in_collection:
+                    ubresidual_mean.SetBinError(i+1, lite_coll[run_bin]["data"][st_id]["width"])
+                ubresidual_mean.GetXaxis().SetNdivisions(-414)
+                try:
+                    ubresidual_mean.GetXaxis().SetBinLabel(i+1,lite_coll[run_bin]["comment"])
+                except:
+                    ubresidual_mean.GetXaxis().SetBinLabel(i+1,str(lite_coll[run_bin]["run_start"])+"-"+str(lite_coll[run_bin]["run_stop"]))
+            if width_in_collection:
+                ubresidual_width.SetBinContent(i+1, lite_coll[run_bin]["data"][st_id]["width"])
+                ubresidual_width.GetXaxis().SetNdivisions(-414)
+                try:
+                    ubresidual_width.GetXaxis().SetBinLabel(i+1,lite_coll[run_bin]["comment"])
+                except:
+                    ubresidual_width.GetXaxis().SetBinLabel(i+1,str(lite_coll[run_bin]["run_start"])+"-"+str(lite_coll[run_bin]["run_stop"]))
+
+    if mean_in_collection:
+        c1 = R.TCanvas("c1","c1",600,600)
+        ubresidual_mean.Draw()
+        c1.SaveAs(plot_address+"/Trend_Mean_Sector_"+sector+".pdf")
+        c1.SaveAs(plot_address+"/Trend_Mean_Sector_"+sector+".C")
+    if width_in_collection:
+        c2 = R.TCanvas("c2","c2",600,600)
+        ubresidual_width.Draw()
+        c2.SaveAs(plot_address+"/Trend_Width_Sector_"+sector+".pdf")
+        c2.SaveAs(plot_address+"/Trend_Width_Sector_"+sector+".C")
     return True
 
 
 def create_efficiency_trends(lite_coll, det, name):
+    #Check if efficiency error is in collection.
+    erreff_in_collection = False
+    for bin in lite_coll:
+        for st_id in lite_coll[bin]["data"]:
+            if "err_efficiency" in lite_coll[bin]["data"][st_id]:
+                erreff_in_collection = True
+                break
     f = R.TFile(name+"histos.root","recreate")
     if det == "IT":
         ST_Map = IT_Map_func()
@@ -345,7 +406,8 @@ def create_efficiency_trends(lite_coll, det, name):
         efficiency = R.TH1F("eff:trend_"+ST_Map[st_id],"Changes of hit efficiency;;Efficiency",len(lite_coll),0,1)
         for i, run_bin in enumerate(sorted(lite_coll.keys())):
             efficiency.SetBinContent(i+1, lite_coll[run_bin]["data"][st_id]["efficiency"])
-            efficiency.SetBinError(i+1, lite_coll[run_bin]["data"][st_id]["err_efficiency"])
+            if erreff_in_collection:
+                efficiency.SetBinError(i+1, lite_coll[run_bin]["data"][st_id]["err_efficiency"])
             efficiency.GetXaxis().SetNdivisions(-414)
             try:
                 efficiency.GetXaxis().SetBinLabel(i+1,lite_coll[run_bin]["comment"])
@@ -357,6 +419,7 @@ def create_efficiency_trends(lite_coll, det, name):
     return True
 
 def create_single_efficiency_trend(lite_coll, sector, plot_address):
+    #Checl if sector name is correct
     setcor_is_found = False
     if "IT" in sector:
         ST_Map = IT_Map_func()
@@ -369,20 +432,31 @@ def create_single_efficiency_trend(lite_coll, sector, plot_address):
     if not st_id:
         print "Wrong sector. Plese use sector names like 'TTaXRegionBSector9'"
         return False
+
+    #Check if efficiency error is in collection.
+    #Check if sollection has information for given sector
+    erreff_in_collection = False
+    for bin in lite_coll:
+        if st_id in lite_coll[bin]["data"]:
+            if "err_efficiency" in lite_coll[bin]["data"][st_id]:
+                setcor_is_found = True
+                erreff_in_collection = True
+                break
+    if not setcor_is_found:
+        print "Trends are empty, please check that you use correct dataset for chosen sector"
+        return False
+
     efficiency = R.TH1F(sector,"Changes of hit efficiency of "+sector+";;Efficiency",len(lite_coll),0,1)
     for i, run_bin in enumerate(sorted(lite_coll.keys())):
         if st_id in lite_coll[run_bin]["data"]:
-            setcor_is_found = True
             efficiency.SetBinContent(i+1, lite_coll[run_bin]["data"][st_id]["efficiency"])
-            efficiency.SetBinError(i+1, lite_coll[run_bin]["data"][st_id]["err_efficiency"])
+            if erreff_in_collection:
+                efficiency.SetBinError(i+1, lite_coll[run_bin]["data"][st_id]["err_efficiency"])
             efficiency.GetXaxis().SetNdivisions(-414)
             try:
                 efficiency.GetXaxis().SetBinLabel(i+1,lite_coll[run_bin]["comment"])
             except:            
                 efficiency.GetXaxis().SetBinLabel(i+1,str(lite_coll[run_bin]["run_start"])+"-"+str(lite_coll[run_bin]["run_stop"]))
-    if not setcor_is_found:
-        print "Trends are empty, please check that you use correct dataset for chosen sector"
-        return False
     c1 = R.TCanvas("c1","c1",600,600)
     efficiency.Draw()
     c1.SaveAs(plot_address+"/Trend_Efficiency_Sector_"+sector+".pdf")

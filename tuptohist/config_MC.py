@@ -4,10 +4,10 @@ Here you may configure behaviour of the package.
 #########
 #General#
 #########
-from binnings.NoBinning_2015 import binning #Choose a time binning
-from binnings.NoBinning_2015 import bin_name #Choose a time binning
-#from binnings.NoBinning_2012 import binning #Choose a time binning
-#from binnings.NoBinning_2012 import bin_name #Choose a time binning
+#from binnings.NoBinning_2015 import binning #Choose a time binning
+#from binnings.NoBinning_2015 import bin_name #Choose a time binning
+from binnings.NoBinning_2012 import binning #Choose a time binning
+from binnings.NoBinning_2012 import bin_name #Choose a time binning
 #from binnings.BinByMonth_2012 import binning #Choose a time binning
 #from binnings.BinByMonth_2012 import bin_name #Choose a time binning
 #from binnings.BinByMonth_2015 import binning #Choose a time binning
@@ -28,7 +28,7 @@ residual_nBins = 100 #number of bins in residual histograms
 ##################
 UsePredefinedRanges = True
 ITMeanRange         = [-0.03, 0.03]
-ITWidthRange        = [0.048, 0.0545]
+ITWidthRange        = [0.02, 0.06]
 ITEffRange          = [0.995, 1.0]
 
 TTMeanRange         = [-0.03, 0.03]
@@ -39,15 +39,14 @@ TTEffRange          = [0.98, 1.0]
 #Histogram Titles#
 ##################
 UsePredefinedTitles = True
-IncudeMissingSectorsToSummary = True
+ITMeanTitle = "Residual bias distribution [mm], 2012"
+ITWidthTitle = "Residual width distribution [mm], 2012"
+ITEffTitle = "Hit detection efficiency distribtion, 2012"
 
-ITMeanTitle = "Residual bias distribution [mm], 2015"
-ITWidthTitle = "Residual width distribution [mm], 2015"
-ITEffTitle = "Hit detection efficiency distribtion, 2015"
+TTMeanTitle =  "Residual bias distribution [mm], 2012"
+TTWidthTitle =  "Residual width distribution [mm], 2012"
+TTEffTitle =  "Hit detection efficiency distribtion, 2012"
 
-TTMeanTitle =  "Residual bias distribution [mm], 2015"
-TTWidthTitle =  "Residual width distribution [mm], 2015"
-TTEffTitle =  "Hit detection efficiency distribtion, 2015"
 
 ###################################################
 #Dependence of efficiency from search window study#

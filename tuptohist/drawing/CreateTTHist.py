@@ -3,6 +3,7 @@ from ROOT import gStyle
 from ROOT import TColor
 from ROOT import gROOT
 import ROOT as R
+import statistics
 from TTMapping import TTMapping
 from TTMapping import TTNumberOfSensors
 from TTMapping import PlotTTBoxes
@@ -12,7 +13,11 @@ from config import TTMeanRange
 from config import TTWidthRange
 from config import TTEffRange
 from config import UsePredefinedRanges
-
+from config import UsePredefinedTitles
+from config import TTMeanTitle
+from config import TTWidthTitle
+from config import TTEffTitle
+from config import IncudeMissingSectorsToSummary
 from array import array
 
 def CreateTTHist(data, variable,  mode, suffix, address="Plots/", test_mode = False):
@@ -36,7 +41,21 @@ def CreateTTHist(data, variable,  mode, suffix, address="Plots/", test_mode = Fa
   global TTWidthRange
   global TTEffRange
   global UsePredefinedRanges
+  global UsePredefinedTitles
+  global TTMeanTitle
+  global TTWidthTitle
+  global TTEffTitle
+  global IncudeMissingSectorsToSummary
   
+  #Check if requested variable is in collection.
+  variable_in_collection = False
+  for st_id in data:
+    if variable in data[st_id]:
+      variable_in_collection = True
+      break
+  if not variable_in_collection:
+    return False
+
   TT_Map = TT_Map_func()
 
   stations  = ["a", "b"]
@@ -91,17 +110,27 @@ def CreateTTHist(data, variable,  mode, suffix, address="Plots/", test_mode = Fa
   if (mode =="Mean") or (variable == "mean"):
     maximum = TTMeanRange[1]
     minimum = TTMeanRange[0]
-    title = "Bias distribution, [mm]"
+    if UsePredefinedTitles:
+      title = TTMeanTitle
+    else:
+      title = "Bias distribution, [mm]"
   elif (mode =="Sigma") or (variable == "width"):
     maximum = TTWidthRange[1]
     minimum = TTWidthRange[0]
-    title = "Resolution, [mm]"
+    if UsePredefinedTitles:
+      title = TTWidthTitle
+    else:
+      title = "Resolution, [mm]"
   elif variable == "efficiency":
     maximum = TTEffRange[1]
     minimum = TTEffRange[0]
-    title = "Hit efficiency"
+    if UsePredefinedTitles:
+      title = TTEffTitle
+    else:
+      title = "Hit efficiency"
 
   masked_sectors = []  
+  vals = []
 
   hist  = R.TH2D("hist", title, nBinsX, lowX, upX, nBinsY, lowY, upY)
   if not test_mode:
@@ -109,16 +138,34 @@ def CreateTTHist(data, variable,  mode, suffix, address="Plots/", test_mode = Fa
       for i in range (0, m_nSensors[st_id]):
           if mode =="Mean":
             hist.Fill(m_mapping[st_id][0], m_mapping[st_id][1]+i, data[st_id][variable].GetMean())
+            if (i==0):
+              if IncudeMissingSectorsToSummary:
+                vals.append(data[st_id][variable].GetMean())
+              else:
+                if (data[st_id][variable].GetMean()<maximum) and (data[st_id][variable].GetMean()>minimum):
+                  vals.append(data[st_id][variable].GetMean())
             if (i==0) and((maximum<data[st_id][variable].GetMean()) or (minimum>data[st_id][variable].GetMean())):
               masked_sectors.append(TT_Map[st_id])
               print "Atention, hit bias of sector "+TT_Map[st_id]+" is out of hist range. The value is "+str(data[st_id][variable].GetMean())
           elif mode =="Sigma":
             hist.Fill(m_mapping[st_id][0], m_mapping[st_id][1]+i, data[st_id][variable].GetRMS())
+            if (i==0):
+              if IncudeMissingSectorsToSummary:
+                vals.append(data[st_id][variable].GetRMS())
+              else:
+                if (data[st_id][variable].GetRMS()<maximum) and (data[st_id][variable].GetRMS()>minimum):
+                  vals.append(data[st_id][variable].GetRMS())
             if (i==0) and((maximum<data[st_id][variable].GetRMS()) or (minimum>data[st_id][variable].GetRMS())):
               masked_sectors.append(TT_Map[st_id])
               print "Atention, resolution of sector "+TT_Map[st_id]+" is out of hist range. The value is "+str(data[st_id][variable].GetRMS())
           elif mode =="Value":
             hist.Fill(m_mapping[st_id][0], m_mapping[st_id][1]+i, data[st_id][variable])
+            if (i==0):
+              if IncudeMissingSectorsToSummary:
+                vals.append(data[st_id][variable])
+              else:
+                if (data[st_id][variable]<maximum) and (data[st_id][variable]>minimum):
+                  vals.append(data[st_id][variable])
             if (i==0) and((maximum<data[st_id][variable]) or (minimum>data[st_id][variable])):
               masked_sectors.append(TT_Map[st_id])
               if variable == "efficiency":
@@ -130,6 +177,7 @@ def CreateTTHist(data, variable,  mode, suffix, address="Plots/", test_mode = Fa
                 print "Atention, "+variable+" of sector "+TT_Map[st_id]+" is out of hist range. The value is "+str(data[st_id][variable])
           else:
             print "Please use one of the following modes: Mean, Sigma, Value"
+  
   
   c = R.TCanvas("c","c",600,600)
 
@@ -150,7 +198,26 @@ def CreateTTHist(data, variable,  mode, suffix, address="Plots/", test_mode = Fa
   if not test_mode:
     c.SaveAs(address+variable+"_"+mode+"_TT_"+suffix+".pdf")
     c.SaveAs(address+variable+"_"+mode+"_TT_"+suffix+".C")
+
+  gStyle.SetOptStat('erm')  
+  gROOT.ForceStyle()
+  first_lower = lambda s: s[:1].lower() + s[1:] if s else ''
+  hist_summary  = R.TH1D("hist_summary", "Summary of "+first_lower(title), 100, min(vals), max(vals))
+  for v in vals:
+    hist_summary.Fill(v)
+  c_s = R.TCanvas("c_s","c_s",600,600)
+  hist_summary.Draw()
+  if not test_mode:
+    c_s.SaveAs(address+"Summary_"+variable+"_"+mode+"_TT_"+suffix+".pdf")
+    c_s.SaveAs(address+"Summary_"+variable+"_"+mode+"_TT_"+suffix+".C")
+  print "Mean : "+str(statistics.mean(vals))
+  print "Median : "+str(statistics.median(vals))
+
   return c
+
+
+
+
 
 if __name__ == "__main__":
   c = CreateTTHist(True, "unbiased_residual","Mean", "suffix","Plots/", True)
