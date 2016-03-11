@@ -46,6 +46,7 @@ def CreateTTHist(data, variable,  mode, suffix, address="Plots/", test_mode = Fa
   global TTWidthTitle
   global TTEffTitle
   global IncudeMissingSectorsToSummary
+  first_lower = lambda s: s[:1].lower() + s[1:] if s else ''
   
   #Check if requested variable is in collection.
   variable_in_collection = False
@@ -199,18 +200,60 @@ def CreateTTHist(data, variable,  mode, suffix, address="Plots/", test_mode = Fa
     c.SaveAs(address+variable+"_"+mode+"_TT_"+suffix+".pdf")
     c.SaveAs(address+variable+"_"+mode+"_TT_"+suffix+".C")
 
+  gStyle.SetPadRightMargin(0.1)
+  gStyle.SetPadLeftMargin(0.1)
   gStyle.SetOptStat('erm')  
   gROOT.ForceStyle()
-  first_lower = lambda s: s[:1].lower() + s[1:] if s else ''
-  hist_summary  = R.TH1D("hist_summary", "Summary of "+first_lower(title), 100, min(vals), max(vals))
+  
+  
+  if (mode =="Mean") or (variable == "mean"):
+    hist_summary  = R.TH1D("hist_summary", "TT "+first_lower(title)+"; Residual [mm];Number of sectors", 100, min(vals), max(vals))
+  elif (mode =="Sigma") or (variable == "width"):
+    hist_summary  = R.TH1D("hist_summary", "TT "+first_lower(title)+"; Resolution [mm];Number of sectors", 100, min(vals), max(vals))
+  elif variable == "efficiency":
+    hist_summary  = R.TH1D("hist_summary", "TT "+first_lower(title)+";Hit detection efficiency;Number of sectors", 100, min(vals), max(vals))
+  else:
+    hist_summary  = R.TH1D("hist_summary", title, 100, min(vals), max(vals))
+
+  hist_summary.GetYaxis().SetTitleOffset(1.2)
+  hist_summary.GetYaxis().SetLabelSize(0.03)
+  hist_summary.GetXaxis().SetLabelSize(0.03)
   for v in vals:
-    hist_summary.Fill(v)
-  c_s = R.TCanvas("c_s","c_s",600,600)
+      hist_summary.Fill(v)
+
+  
+  c_s = R.TCanvas("c_s","c_s",800,800)
+
   hist_summary.Draw()
+
+  R.gPad.Update()
+
+  if variable == "efficiency":
+      st = hist_summary.FindObject("stats")
+      st.SetX1NDC(0.15)
+      st.SetX2NDC(0.35)
+      st.SetY1NDC(0.65)
+      st.SetY2NDC(0.85)
+  elif variable == "mean":
+      st = hist_summary.FindObject("stats")
+      st.SetX1NDC(0.65)
+      st.SetX2NDC(0.85)
+      st.SetY1NDC(0.65)
+      st.SetY2NDC(0.85)
+  elif variable == "width":
+      st = hist_summary.FindObject("stats")
+      st.SetX1NDC(0.78)
+      st.SetX2NDC(0.98)
+      st.SetY1NDC(0.65)
+      st.SetY2NDC(0.85)
+
+
+  R.gPad.Update()
+
   if not test_mode:
     c_s.SaveAs(address+"Summary_"+variable+"_"+mode+"_TT_"+suffix+".pdf")
     c_s.SaveAs(address+"Summary_"+variable+"_"+mode+"_TT_"+suffix+".C")
-  print "Mean : "+str(statistics.mean(vals))
+  print "Mean : "+str(statistics.mean(vals))+" +/- "+str(statistics.stdev(vals))
   print "Median : "+str(statistics.median(vals))
 
   return c

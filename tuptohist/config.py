@@ -27,19 +27,19 @@ residual_nBins = 100 #number of bins in residual histograms
 #Histogram ranges#
 ##################
 UsePredefinedRanges = True
-ITMeanRange         = [-0.03, 0.03]
-ITWidthRange        = [0.048, 0.0545]
+ITMeanRange         = [-0.06, 0.06]
+ITWidthRange        = [0.044, 0.058]
 ITEffRange          = [0.995, 1.0]
 
-TTMeanRange         = [-0.03, 0.03]
-TTWidthRange        = [0.02, 0.06]
+TTMeanRange         = [-0.06, 0.06]
+TTWidthRange        = [0.03, 0.06]
 TTEffRange          = [0.98, 1.0]
 
 ##################
 #Histogram Titles#
 ##################
 UsePredefinedTitles = True
-IncudeMissingSectorsToSummary = True
+IncudeMissingSectorsToSummary = False
 
 ITMeanTitle = "Residual bias distribution [mm], 2015"
 ITWidthTitle = "Residual width distribution [mm], 2015"
