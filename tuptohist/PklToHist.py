@@ -10,6 +10,7 @@ from datetime import datetime
 from suppl.Structure import *
 from drawing.CreateTTHist import CreateTTHist
 from drawing.CreateITHist import CreateITHist
+from drawing.Create_Maps import *
 from config import binning
 from config import histogram_address
 from config import plot_address
@@ -19,8 +20,8 @@ gStyle.SetOptStat(False)
 #from ROOT import RooFit as RF
 
 
-def PklToHist(data, oparation_mode, histogram_address=histogram_address, plot_address=plot_address):
-    if (oparation_mode=='1'):
+def PklToHist(data, operation_mode, histogram_address=histogram_address, plot_address=plot_address, dump_summary = False):
+    if (operation_mode=='1'):
         print "Opening file "+data+"  (it may take several minutes)"
         start = datetime.now()
         with open(data, 'r') as basket:
@@ -37,8 +38,17 @@ def PklToHist(data, oparation_mode, histogram_address=histogram_address, plot_ad
         #write_histogram(coll_ITHitMonitor, "Monitor", histogram_address+"ITHitMonitor")
         print "Creating trends"
         create_monitor_trends(coll_ITHitMonitor, "IT", histogram_address+"Trends_ITHitMonitor")
+        if dump_summary:
+            ITResolution = []
+            IT_Map_dict = IT_Map()
+            IT_ids_Map_dict = IT_ids_Map()
+            for st_id in coll_ITHitMonitor[0]['data']:
+                ITResolution.append({'name':IT_Map_dict[st_id],'id':IT_ids_Map_dict[st_id],'resolution':coll_ITHitMonitor[0]['data'][st_id]['width'], 'mean':coll_ITHitMonitor[0]['data'][st_id]['mean'], 'err_width:':coll_ITHitMonitor[0]['data'][st_id]['err_width']})
+            with open('Resolution_Map_IT.pkl', 'wb') as basket:
+                pickle.dump(ITResolution, basket)        
+
     
-    elif (oparation_mode=='2'):
+    elif (operation_mode=='2'):
         print "Opening file "+data+"  (it may take several minutes)"
         start = datetime.now()
         with open(data, 'r') as basket:
@@ -55,8 +65,16 @@ def PklToHist(data, oparation_mode, histogram_address=histogram_address, plot_ad
         #write_histogram(coll_TTHitMonitor, "Monitor",histogram_address+"TTHitMonitor")
         print "Creating trends"
         create_monitor_trends(coll_TTHitMonitor, "TT",histogram_address+"Trends_TTHitMonitor")
+        if dump_summary:
+            TTResolution = []
+            TT_Map_dict = TT_Map()
+            TT_ids_Map_dict = TT_ids_Map()
+            for st_id in coll_TTHitMonitor[0]['data']:
+                TTResolution.append({'name':TT_Map_dict[st_id],'id':TT_ids_Map_dict[st_id],'resolution':coll_TTHitMonitor[0]['data'][st_id]['width'], 'mean':coll_TTHitMonitor[0]['data'][st_id]['mean'], 'err_width:':coll_TTHitMonitor[0]['data'][st_id]['err_width']})
+            with open('Resolution_Map_TT.pkl', 'wb') as basket:
+                pickle.dump(TTResolution, basket)  
     
-    elif (oparation_mode=='3'):
+    elif (operation_mode=='3'):
         print "Opening file "+data+"  (it may take several minutes)"
         start = datetime.now()
         with open(data, 'r') as basket:
@@ -72,8 +90,17 @@ def PklToHist(data, oparation_mode, histogram_address=histogram_address, plot_ad
         #write_histogram(coll_TTHitEfficiency, "Efficiency",histogram_address+"TTHitEfficiency")
         print "Creating trends"
         create_efficiency_trends(coll_TTHitEfficiency, "TT",histogram_address+"Trends_TTHitEfficiency")
+        if dump_summary:
+            TTEfficiency = []
+            TT_Map_dict = TT_Map()
+            TT_ids_Map_dict = TT_ids_Map()
+            for st_id in coll_TTHitEfficiency[0]['data']:
+                TTEfficiency.append({'name':TT_Map_dict[st_id],'id':TT_ids_Map_dict[st_id],'efficiency':coll_TTHitEfficiency[0]['data'][st_id]['efficiency'], 'err_efficiency':coll_TTHitEfficiency[0]['data'][st_id]['err_efficiency']})
+            with open('Efficiency_Map_TT.pkl', 'wb') as basket:
+                pickle.dump(TTEfficiency, basket)  
+
     
-    elif (oparation_mode=='4'):
+    elif (operation_mode=='4'):
         print "Opening file "+data+"  (it may take several minutes)"
         start = datetime.now()
         with open(data, 'r') as basket:
@@ -89,6 +116,15 @@ def PklToHist(data, oparation_mode, histogram_address=histogram_address, plot_ad
         #write_histogram(coll_ITHitEfficiency, "Efficiency",histogram_address+"ITHitEfficiency")
         print "Creating trends"
         create_efficiency_trends(coll_ITHitEfficiency, "IT",histogram_address+"Trends_ITHitEfficiency")
+        if dump_summary:
+            ITEfficiency = []
+            IT_Map_dict = IT_Map()
+            IT_ids_Map_dict = IT_ids_Map()
+            for st_id in coll_ITHitEfficiency[0]['data']:
+                ITEfficiency.append({'name':IT_Map_dict[st_id],'id':IT_ids_Map_dict[st_id],'efficiency':coll_ITHitEfficiency[0]['data'][st_id]['efficiency'], 'err_efficiency':coll_ITHitEfficiency[0]['data'][st_id]['err_efficiency']})
+            with open('Efficiency_Map_IT.pkl', 'wb') as basket:
+                pickle.dump(ITEfficiency, basket)  
+
     
     else:
         print "To run scipt, choose the mode you want to run:"
@@ -105,6 +141,9 @@ if __name__ == "__main__":
     if len(sys.argv)==3:
         data = sys.argv[1]
         PklToHist(data,sys.argv[2])
+    if len(sys.argv)==4:
+        data = sys.argv[1]
+        PklToHist(data = data, operation_mode = sys.argv[2], dump_summary = True)
     else:
         syntax_explanation("PklToHist.py")
        

@@ -26,6 +26,7 @@ from drawing.Create_Maps import IT_Map as IT_Map_func
 
 import ROOT as R
 from ROOT import gStyle
+from ROOT import gROOT
 gStyle.SetOptStat(False)
 
 
@@ -119,7 +120,8 @@ def create_monitor_lite(monitor_ind):
     #To produce .pkls and build trends.
     monitor_lite = {
     "mean":monitor_ind["unbiased_residual"].GetMean(),
-    "width":monitor_ind["unbiased_residual"].GetRMS()}
+    "width":monitor_ind["unbiased_residual"].GetRMS(),
+    "err_width":monitor_ind["unbiased_residual"].GetRMSError()}
     return monitor_lite
 
 def create_efficiency_lite(efficiency_ind):
@@ -305,6 +307,7 @@ def create_monitor_trends(lite_coll, det, name):
                     ubresidual_mean.GetXaxis().SetBinLabel(i+1,str(lite_coll[run_bin]["run_start"])+"-"+str(lite_coll[run_bin]["run_stop"]))
             if width_in_collection:
                 ubresidual_width.SetBinContent(i+1, lite_coll[run_bin]["data"][st_id]["width"])
+                ubresidual_width.SetBinError(i+1, lite_coll[run_bin]["data"][st_id]["err_width"])
                 ubresidual_width.GetXaxis().SetNdivisions(-414)
                 try:
                     ubresidual_width.GetXaxis().SetBinLabel(i+1,lite_coll[run_bin]["comment"])
@@ -319,6 +322,11 @@ def create_monitor_trends(lite_coll, det, name):
     return True
 
 def create_single_monitor_trend(lite_coll, sector, plot_address):
+    gROOT.SetStyle("Modern")
+    gROOT.ForceStyle()
+    gROOT.ProcessLine(".x lhcbStyle.C")
+    gStyle.SetPadLeftMargin(0.2)
+    gROOT.ForceStyle()
     setcor_is_found = False
     if "IT" in sector:
         ST_Map = IT_Map_func()
@@ -370,6 +378,7 @@ def create_single_monitor_trend(lite_coll, sector, plot_address):
                     ubresidual_mean.GetXaxis().SetBinLabel(i+1,str(lite_coll[run_bin]["run_start"])+"-"+str(lite_coll[run_bin]["run_stop"]))
             if width_in_collection:
                 ubresidual_width.SetBinContent(i+1, lite_coll[run_bin]["data"][st_id]["width"])
+                ubresidual_width.SetBinError(i+1, lite_coll[run_bin]["data"][st_id]["err_width"])
                 ubresidual_width.GetXaxis().SetNdivisions(-414)
                 try:
                     ubresidual_width.GetXaxis().SetBinLabel(i+1,lite_coll[run_bin]["comment"])
@@ -377,15 +386,19 @@ def create_single_monitor_trend(lite_coll, sector, plot_address):
                     ubresidual_width.GetXaxis().SetBinLabel(i+1,str(lite_coll[run_bin]["run_start"])+"-"+str(lite_coll[run_bin]["run_stop"]))
 
     if mean_in_collection:
+        ubresidual_mean.GetYaxis().SetTitleOffset(1.2)
         c1 = R.TCanvas("c1","c1",600,600)
         ubresidual_mean.Draw()
         c1.SaveAs(plot_address+"/Trend_Mean_Sector_"+sector+".pdf")
         c1.SaveAs(plot_address+"/Trend_Mean_Sector_"+sector+".C")
     if width_in_collection:
+        ubresidual_width.GetYaxis().SetTitleOffset(1.2)
         c2 = R.TCanvas("c2","c2",600,600)
         ubresidual_width.Draw()
         c2.SaveAs(plot_address+"/Trend_Width_Sector_"+sector+".pdf")
         c2.SaveAs(plot_address+"/Trend_Width_Sector_"+sector+".C")
+    gROOT.SetStyle("Modern")
+    gROOT.ForceStyle()
     return True
 
 
@@ -420,6 +433,11 @@ def create_efficiency_trends(lite_coll, det, name):
 
 def create_single_efficiency_trend(lite_coll, sector, plot_address):
     #Checl if sector name is correct
+    gROOT.SetStyle("Modern")
+    gROOT.ForceStyle()
+    gROOT.ProcessLine(".x lhcbStyle.C")
+    gStyle.SetPadLeftMargin(0.2)
+    gROOT.ForceStyle()
     setcor_is_found = False
     if "IT" in sector:
         ST_Map = IT_Map_func()
@@ -457,10 +475,15 @@ def create_single_efficiency_trend(lite_coll, sector, plot_address):
                 efficiency.GetXaxis().SetBinLabel(i+1,lite_coll[run_bin]["comment"])
             except:            
                 efficiency.GetXaxis().SetBinLabel(i+1,str(lite_coll[run_bin]["run_start"])+"-"+str(lite_coll[run_bin]["run_stop"]))
+
+    efficiency.GetYaxis().SetTitleOffset(1.2)
     c1 = R.TCanvas("c1","c1",600,600)
     efficiency.Draw()
-    c1.SaveAs(plot_address+"/Trend_Efficiency_Sector_"+sector+".pdf")
-    c1.SaveAs(plot_address+"/Trend_Efficiency_Sector_"+sector+".C")
+    c1.SaveAs(plot_address+"Trend_Efficiency_Sector_"+sector+".pdf")
+    c1.SaveAs(plot_address+"Trend_Efficiency_Sector_"+sector+".C")
+    gROOT.SetStyle("Modern")
+    gROOT.ForceStyle()
+
     return True
 
 

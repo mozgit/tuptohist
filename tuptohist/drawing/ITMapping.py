@@ -27,6 +27,10 @@ def ITMapping(st_id):
 
 
 def PlotITBoxes(hist, nBinsX, lowX, upX, nBinsY, lowY, upY, masked_sectors):
+  try:
+    from config import dead_sectors
+  except:
+    dead_sectors = []
   box = R.TBox()
   box.SetFillColor(R.kBlack)
   box.SetFillStyle(0)
@@ -47,6 +51,11 @@ def PlotITBoxes(hist, nBinsX, lowX, upX, nBinsY, lowY, upY, masked_sectors):
   boxwhite.SetLineStyle(1)
   boxwhite.SetLineColor(R.kWhite)
 
+  boxblack = R.TBox()
+  boxblack.SetFillColor(R.kBlack)
+  boxblack.SetFillStyle(1001)
+  boxblack.SetLineStyle(1)
+  boxblack.SetLineColor(R.kBlack)
   #with open('IT_Map.pkl', 'r') as basket:
   #  IT_Map = pickle.load(basket)
   IT_Map = IT_Map_func()
@@ -70,6 +79,9 @@ def PlotITBoxes(hist, nBinsX, lowX, upX, nBinsY, lowY, upY, masked_sectors):
     if st_id in masked_sectors:
       boxwhite.DrawBox(ITMapping(st_id)[0]-0.5,ITMapping(st_id)[1]-0.25, ITMapping(st_id)[0]+0.5,ITMapping(st_id)[1]+0.25)
       boxempty.DrawBox(ITMapping(st_id)[0]-0.5,ITMapping(st_id)[1]-0.25, ITMapping(st_id)[0]+0.5,ITMapping(st_id)[1]+0.25)
+    if st_id in dead_sectors:
+      boxblack.DrawBox(ITMapping(st_id)[0]-0.5,ITMapping(st_id)[1]-0.25, ITMapping(st_id)[0]+0.5,ITMapping(st_id)[1]+0.25)
+
 
 
   return True
@@ -77,8 +89,8 @@ def PlotITBoxes(hist, nBinsX, lowX, upX, nBinsY, lowY, upY, masked_sectors):
 def PlotITLabels(hist):
   hist.GetXaxis().SetTickLength(0)
   hist.GetYaxis().SetTickLength(0)
-  hist.GetXaxis().SetLabelColor(R.kBlack)
-  hist.GetYaxis().SetLabelColor(R.kBlack)
+  hist.GetXaxis().SetLabelColor(R.kWhite)
+  hist.GetYaxis().SetLabelColor(R.kWhite)
   it1 = R.TText()
   it1.DrawText(-1., -8.5, "IT1")
   it2 = R.TText()

@@ -153,6 +153,10 @@ def TTNumberOfSensors(st_id):
       
     
 def PlotTTBoxes(hist, nBinsX, lowX, upX, nBinsY, lowY, upY,masked_sectors):
+  try:
+    from config import dead_sectors
+  except:
+    dead_sectors = []  
   box = R.TBox()
   box.SetFillColor(R.kWhite)
   box.SetFillStyle(0)
@@ -173,6 +177,12 @@ def PlotTTBoxes(hist, nBinsX, lowX, upX, nBinsY, lowY, upY,masked_sectors):
   boxwhite.SetLineStyle(1)
   boxwhite.SetLineColor(R.kWhite)  
  
+  boxblack = R.TBox()
+  boxblack.SetFillColor(R.kBlack)
+  boxblack.SetFillStyle(1001)
+  boxblack.SetLineStyle(1)
+  boxblack.SetLineColor(R.kBlack)  
+
   #with open('TT_Map.pkl', 'r') as basket:
   #  TT_Map = pickle.load(basket)
   TT_Map = TT_Map_func()
@@ -196,6 +206,8 @@ def PlotTTBoxes(hist, nBinsX, lowX, upX, nBinsY, lowY, upY,masked_sectors):
     if st_id in masked_sectors:
       boxwhite.DrawBox(TTMapping(st_id)[0]-0.5,TTMapping(st_id)[1]-0.5, TTMapping(st_id)[0]+0.5,TTMapping(st_id)[1]+0.5+TTNumberOfSensors(st_id)-1.)
       boxempty.DrawBox(TTMapping(st_id)[0]-0.5,TTMapping(st_id)[1]-0.5, TTMapping(st_id)[0]+0.5,TTMapping(st_id)[1]+0.5+TTNumberOfSensors(st_id)-1.)
+    if st_id in dead_sectors:
+      boxblack.DrawBox(TTMapping(st_id)[0]-0.5,TTMapping(st_id)[1]-0.5, TTMapping(st_id)[0]+0.5,TTMapping(st_id)[1]+0.5+TTNumberOfSensors(st_id)-1.)
 
 def PlotTTLabels(hist): 
   hist.GetXaxis().SetTickLength(0)

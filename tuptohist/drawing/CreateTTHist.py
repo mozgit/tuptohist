@@ -62,7 +62,8 @@ def CreateTTHist(data, variable,  mode, suffix, address="Plots/", test_mode = Fa
   stations  = ["a", "b"]
   regions = ["A","B","C"]
   layers = ["X", "U", "V"]
-
+  gROOT.SetStyle("Modern")
+  gROOT.ForceStyle()
 
   gStyle.SetOptStat(0)
   gStyle.SetOptFit(0)
@@ -200,24 +201,34 @@ def CreateTTHist(data, variable,  mode, suffix, address="Plots/", test_mode = Fa
     c.SaveAs(address+variable+"_"+mode+"_TT_"+suffix+".pdf")
     c.SaveAs(address+variable+"_"+mode+"_TT_"+suffix+".C")
 
-  gStyle.SetPadRightMargin(0.1)
-  gStyle.SetPadLeftMargin(0.1)
+
+  gROOT.ProcessLine(".x lhcbStyle.C")
+  #gStyle.SetPadRightMargin(0.1)
+  #gStyle.SetPadLeftMargin(0.1)
   gStyle.SetOptStat('erm')  
   gROOT.ForceStyle()
-  
+
+  #lhcbStyle()
+ 
+  try:
+    from config import nBins_in_summary
+    nBins = nBins_in_summary
+  except:
+    nBins = 50
+    
   
   if (mode =="Mean") or (variable == "mean"):
-    hist_summary  = R.TH1D("hist_summary", "TT "+first_lower(title)+"; Residual [mm];Number of sectors", 100, min(vals), max(vals))
+    hist_summary  = R.TH1D("hist_summary", "TT "+first_lower(title)+"; Residual [mm];Number of sectors", nBins, min(vals), max(vals))
   elif (mode =="Sigma") or (variable == "width"):
-    hist_summary  = R.TH1D("hist_summary", "TT "+first_lower(title)+"; Resolution [mm];Number of sectors", 100, min(vals), max(vals))
+    hist_summary  = R.TH1D("hist_summary", "TT "+first_lower(title)+"; Resolution [mm];Number of sectors", nBins, min(vals), max(vals))
   elif variable == "efficiency":
-    hist_summary  = R.TH1D("hist_summary", "TT "+first_lower(title)+";Hit detection efficiency;Number of sectors", 100, min(vals), max(vals))
+    hist_summary  = R.TH1D("hist_summary", "TT "+first_lower(title)+";Hit detection efficiency;Number of sectors", nBins, min(vals), max(vals))
   else:
-    hist_summary  = R.TH1D("hist_summary", title, 100, min(vals), max(vals))
+    hist_summary  = R.TH1D("hist_summary", title, nBins, min(vals), max(vals))
 
-  hist_summary.GetYaxis().SetTitleOffset(1.2)
-  hist_summary.GetYaxis().SetLabelSize(0.03)
-  hist_summary.GetXaxis().SetLabelSize(0.03)
+  #hist_summary.GetYaxis().SetTitleOffset(1.2)
+  #hist_summary.GetYaxis().SetLabelSize(0.03)
+  #hist_summary.GetXaxis().SetLabelSize(0.03)
   for v in vals:
       hist_summary.Fill(v)
 
@@ -255,7 +266,8 @@ def CreateTTHist(data, variable,  mode, suffix, address="Plots/", test_mode = Fa
     c_s.SaveAs(address+"Summary_"+variable+"_"+mode+"_TT_"+suffix+".C")
   print "Mean : "+str(statistics.mean(vals))+" +/- "+str(statistics.stdev(vals))
   print "Median : "+str(statistics.median(vals))
-
+  gROOT.SetStyle("Modern")
+  gROOT.ForceStyle()
   return c
 
 
