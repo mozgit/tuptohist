@@ -95,7 +95,8 @@ def create_monitor_ind(st_name,run_range):
     "residual":R.TH1F("residualM"+run_range+"_"+st_name,"Residual;[mm];Number of events",residual_nBins, -residual_limit,residual_limit),
     "errMeasure":[],
     "errResidual":[],
-    "unbiased_residual":R.TH1F("unbiasedresidualM"+run_range+"_"+st_name,"Residual (rms-unbiased);[mm];Number of events",residual_nBins, -residual_limit,residual_limit)}
+    "unbiased_residual":R.TH1F("unbiasedresidualM"+run_range+"_"+st_name,"Unbiased residual;[mm];Number of events",residual_nBins, -residual_limit,residual_limit),
+    "rms_unbiased_residual":R.TH1F("rmsunbiasedresidualM"+run_range+"_"+st_name,"Residual (rms-unbiased);[mm];Number of events",residual_nBins, -residual_limit,residual_limit)}
     return monitor_ind
 
 def create_efficiency_ind(st_name,run_range):
@@ -120,8 +121,8 @@ def create_monitor_lite(monitor_ind):
     #To produce .pkls and build trends.
     monitor_lite = {
     "mean":monitor_ind["unbiased_residual"].GetMean(),
-    "width":monitor_ind["unbiased_residual"].GetRMS(),
-    "err_width":monitor_ind["unbiased_residual"].GetRMSError()}
+    "width":monitor_ind["rms_unbiased_residual"].GetRMS(),
+    "err_width":monitor_ind["rms_unbiased_residual"].GetRMSError()}
     return monitor_lite
 
 def create_efficiency_lite(efficiency_ind):
@@ -245,6 +246,7 @@ def write_histogram(coll, mode, name):
             if mode == "Monitor":
                 #coll[run_bin]["data"][st_id]["residual"].Write()            
                 coll[run_bin]["data"][st_id]["unbiased_residual"].Write()
+                coll[run_bin]["data"][st_id]["rms_unbiased_residual"].Write()
             else:
                 #coll[run_bin]["data"][st_id]["residual"].Write()            
                 coll[run_bin]["data"][st_id]["efficiency_hist"].Write()
@@ -292,9 +294,9 @@ def create_monitor_trends(lite_coll, det, name):
 
     for st_id in ST_Map:
         if mean_in_collection:
-            ubresidual_mean = R.TH1F("bias:trend:RMSNB:M_"+ST_Map[st_id],"Changes of hit residual mean (rms-unbiased);;Bias, [mm]",len(lite_coll),0,1)
+            ubresidual_mean = R.TH1F("bias:trend:NBR:M_"+ST_Map[st_id],"Changes of the bias (unbiased residual mean);;Bias, [mm]",len(lite_coll),0,1)
         if width_in_collection:
-            ubresidual_width = R.TH1F("width:trend:RMSNB:M_"+ST_Map[st_id],"Changes of hit residual width rms-unbiased;;Resolution, [mm]",len(lite_coll),0,1)
+            ubresidual_width = R.TH1F("width:trend:RMSNB:M_"+ST_Map[st_id],"Changes of the hit resolution (width of rms-unbiased residual);;Resolution, [mm]",len(lite_coll),0,1)
         for i, run_bin in enumerate(sorted(lite_coll.keys())):
             if mean_in_collection:
                 ubresidual_mean.SetBinContent(i+1, lite_coll[run_bin]["data"][st_id]["mean"])
@@ -362,9 +364,9 @@ def create_single_monitor_trend(lite_coll, sector, plot_address):
         return False
 
     if mean_in_collection:
-        ubresidual_mean = R.TH1F(sector,"Changes of hit residual mean (rms-unbiased) of "+sector+";;Bias, [mm]",len(lite_coll),0,1)
+        ubresidual_mean = R.TH1F(sector,"Changes of the bias (mean of the unbiased residual) of "+sector+";;Bias, [mm]",len(lite_coll),0,1)
     if width_in_collection:
-        ubresidual_width = R.TH1F(sector,"Changes of hit residual width rms-unbiased of "+sector+";;Resolution, [mm]",len(lite_coll),0,1)
+        ubresidual_width = R.TH1F(sector,"Changes of the hit resolution (width of the rms-unbiased residual) of "+sector+";;Resolution, [mm]",len(lite_coll),0,1)
     for i, run_bin in enumerate(sorted(lite_coll.keys())):
         if st_id in lite_coll[run_bin]["data"]:
             if mean_in_collection:

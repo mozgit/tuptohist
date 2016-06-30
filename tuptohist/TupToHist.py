@@ -51,7 +51,8 @@ def TupToHist(data, oparation_mode, Number_Of_Events=Number_Of_Events, pkl_addre
                         coll_ITHitMonitor[run_bin]["data"][s.clusterSTchanMapID[hit]]["residual"].Fill(s.hit_residual[hit])
                         coll_ITHitMonitor[run_bin]["data"][s.clusterSTchanMapID[hit]]["errMeasure"].append(s.hit_errMeasure[hit])
                         coll_ITHitMonitor[run_bin]["data"][s.clusterSTchanMapID[hit]]["errResidual"].append(s.hit_errResidual[hit])
-                        coll_ITHitMonitor[run_bin]["data"][s.clusterSTchanMapID[hit]]["unbiased_residual"].Fill(s.hit_residual[hit]*abs(s.hit_errMeasure[hit]/s.hit_errResidual[hit]))
+                        coll_ITHitMonitor[run_bin]["data"][s.clusterSTchanMapID[hit]]["unbiased_residual"].Fill(s.hit_residual[hit]*(abs(s.hit_errMeasure[hit]/s.hit_errResidual[hit])**2))
+                        coll_ITHitMonitor[run_bin]["data"][s.clusterSTchanMapID[hit]]["rms_unbiased_residual"].Fill(s.hit_residual[hit]*abs(s.hit_errMeasure[hit]/s.hit_errResidual[hit]))
         write_histogram(coll_ITHitMonitor, "Monitor", histogram_address+"ITHitMonitor"+"__"+bin_name+"_")                        
         coll_ITHitMonitor = make_coll_lite(coll = coll_ITHitMonitor, det = "IT", mode = "Monitor")
         for run_bin in coll_ITHitMonitor:
@@ -81,7 +82,8 @@ def TupToHist(data, oparation_mode, Number_Of_Events=Number_Of_Events, pkl_addre
                         coll_TTHitMonitor[run_bin]["data"][s.clusterSTchanMapID[hit]]["residual"].Fill(s.hit_residual[hit])
                         coll_TTHitMonitor[run_bin]["data"][s.clusterSTchanMapID[hit]]["errMeasure"].append(s.hit_errMeasure[hit])
                         coll_TTHitMonitor[run_bin]["data"][s.clusterSTchanMapID[hit]]["errResidual"].append(s.hit_errResidual[hit])
-                        coll_TTHitMonitor[run_bin]["data"][s.clusterSTchanMapID[hit]]["unbiased_residual"].Fill(s.hit_residual[hit]*abs(s.hit_errMeasure[hit]/s.hit_errResidual[hit]))
+                        coll_TTHitMonitor[run_bin]["data"][s.clusterSTchanMapID[hit]]["unbiased_residual"].Fill(s.hit_residual[hit]*(abs(s.hit_errMeasure[hit]/s.hit_errResidual[hit])**2))
+                        coll_TTHitMonitor[run_bin]["data"][s.clusterSTchanMapID[hit]]["rms_unbiased_residual"].Fill(s.hit_residual[hit]*abs(s.hit_errMeasure[hit]/s.hit_errResidual[hit]))
         write_histogram(coll_TTHitMonitor, "Monitor",histogram_address+"TTHitMonitor"+"__"+bin_name+"_")                        
         coll_TTHitMonitor = make_coll_lite(coll = coll_TTHitMonitor, det = "TT", mode = "Monitor")
         for run_bin in coll_TTHitMonitor:

@@ -84,6 +84,7 @@ def PklAlgebra(dataset_1, dataset_2,formula, variable, pkl_address=pkl_address):
 
 if __name__ == "__main__":
     #local_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+    #python ~/tuptohist/tuptohist/PklAlgebra.py ../2012/AllRuns/Pkls/ITHitMonitor_AllRuns_12.pkl ../2015/AllRuns/Pkls/ITHitMonitor_AllRuns_15.pkl abs\(b\)-abs\(a\) mean
     if len(sys.argv)==4:
         formula = sys.argv[3]
         ds_1 = sys.argv[1]

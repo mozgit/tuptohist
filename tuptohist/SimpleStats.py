@@ -21,8 +21,10 @@ def simple_analysis(data):
     f_input = R.TFile(data)
     tree_ITHitMonitor = f_input.ITHitMonitor
     t_ITHitMonitor = tree_ITHitMonitor.Get("TrackMonTuple")
-    h_ITHitMonitor = R.TH2F("h_ITHitMonitor","h_ITHitMonitor", max(IT_Map.keys())+1, -0.5, max(IT_Map.keys())+0.5, 200, -0.3,0.3)
-    t_ITHitMonitor.Project("h_ITHitMonitor", "hit_residual:clusterSTchanMapID")
+    h_ITHitMonitor_u = R.TH2F("h_ITHitMonitor_u","h_ITHitMonitor_u", max(IT_Map.keys())+1, -0.5, max(IT_Map.keys())+0.5, 200, -0.3,0.3)
+    h_ITHitMonitor_r = R.TH2F("h_ITHitMonitor_r","h_ITHitMonitor_r", max(IT_Map.keys())+1, -0.5, max(IT_Map.keys())+0.5, 200, -0.3,0.3)
+    t_ITHitMonitor.Project("h_ITHitMonitor_u", "hit_residual*hit_errMeasure*hit_errMeasure/hit_errResidual/hit_errResidual:clusterSTchanMapID")
+    t_ITHitMonitor.Project("h_ITHitMonitor_r", "hit_residual*hit_errMeasure/hit_errResidual:clusterSTchanMapID")
     it_mean_abswidth=0
     h_it_mean_abswidth = R.TH1F("h_it_mean_abswidth","h_it_mean_abswidth", 100, 0., 0.03)
     it_mean_res=0
@@ -31,20 +33,25 @@ def simple_analysis(data):
     for i in IT_Map.keys():
         if not IT_Map[i] in dead_sectors:            
             #print "Processing "+IT_Map[i]
-            h_hist = h_ITHitMonitor.ProjectionY(IT_Map[i], i+1, i+1)
-            it_mean_abswidth    += abs(h_hist.GetMean())*h_hist.GetEntries()
-            h_it_mean_abswidth.Fill(abs(h_hist.GetMean()), h_hist.GetEntries())
-            it_mean_res         += h_hist.GetRMS()*h_hist.GetEntries()
-            h_it_mean_res.Fill(h_hist.GetRMS(), h_hist.GetEntries())
-            it_nEntries         += h_hist.GetEntries()
-            del h_hist
+            h_hist_u = h_ITHitMonitor_u.ProjectionY(IT_Map[i], i+1, i+1)
+            h_hist_r = h_ITHitMonitor_r.ProjectionY(IT_Map[i], i+1, i+1)
+            it_mean_abswidth    += abs(h_hist_u.GetMean())*h_hist_u.GetEntries()
+            h_it_mean_abswidth.Fill(abs(h_hist_u.GetMean()), h_hist_u.GetEntries())
+            it_mean_res         += h_hist_r.GetRMS()*h_hist_r.GetEntries()
+            h_it_mean_res.Fill(h_hist_r.GetRMS(), h_hist_r.GetEntries())
+            it_nEntries         += h_hist_r.GetEntries()
+            del h_hist_u
+            del h_hist_r
     it_mean_abswidth = float(it_mean_abswidth)/it_nEntries
     it_mean_res = float(it_mean_res)/it_nEntries
 
+    
     tree_TTHitMonitor = f_input.TTHitMonitor
     t_TTHitMonitor = tree_TTHitMonitor.Get("TrackMonTuple")
-    h_TTHitMonitor = R.TH2F("h_TTHitMonitor","h_TTHitMonitor", max(TT_Map.keys())+1, -0.5, max(TT_Map.keys())+0.5, 200, -0.3,0.3)
-    t_TTHitMonitor.Project("h_TTHitMonitor", "hit_residual:clusterSTchanMapID")
+    h_TTHitMonitor_u = R.TH2F("h_TTHitMonitor_u","h_TTHitMonitor_u", max(TT_Map.keys())+1, -0.5, max(TT_Map.keys())+0.5, 200, -0.3,0.3)
+    h_TTHitMonitor_r = R.TH2F("h_TTHitMonitor_r","h_TTHitMonitor_r", max(TT_Map.keys())+1, -0.5, max(TT_Map.keys())+0.5, 200, -0.3,0.3)
+    t_TTHitMonitor.Project("h_TTHitMonitor_u", "hit_residual*hit_errMeasure*hit_errMeasure/hit_errResidual/hit_errResidual:clusterSTchanMapID")
+    t_TTHitMonitor.Project("h_TTHitMonitor_r", "hit_residual*hit_errMeasure/hit_errResidual:clusterSTchanMapID")
     tt_mean_abswidth=0
     h_tt_mean_abswidth = R.TH1F("h_tt_mean_abswidth","h_tt_mean_abswidth", 100, 0., 0.03)
     tt_mean_res=0
@@ -53,13 +60,15 @@ def simple_analysis(data):
     for i in TT_Map.keys():
         if not IT_Map[i] in dead_sectors:            
             #print "Processing "+TT_Map[i]
-            h_hist = h_TTHitMonitor.ProjectionY(TT_Map[i], i+1, i+1)
-            tt_mean_abswidth    += abs(h_hist.GetMean())*h_hist.GetEntries()
-            h_tt_mean_abswidth.Fill(abs(h_hist.GetMean()), h_hist.GetEntries())
-            tt_mean_res         += h_hist.GetRMS()*h_hist.GetEntries()
-            h_tt_mean_res.Fill(h_hist.GetRMS(), h_hist.GetEntries())
-            tt_nEntries         += h_hist.GetEntries()
-            del h_hist
+            h_hist_u = h_TTHitMonitor_u.ProjectionY(TT_Map[i], i+1, i+1)
+            h_hist_r = h_TTHitMonitor_r.ProjectionY(TT_Map[i], i+1, i+1)
+            tt_mean_abswidth    += abs(h_hist_u.GetMean())*h_hist_u.GetEntries()
+            h_tt_mean_abswidth.Fill(abs(h_hist_u.GetMean()), h_hist_u.GetEntries())
+            tt_mean_res         += h_hist_r.GetRMS()*h_hist_r.GetEntries()
+            h_tt_mean_res.Fill(h_hist_r.GetRMS(), h_hist_r.GetEntries())
+            tt_nEntries         += h_hist_r.GetEntries()
+            del h_hist_u
+            del h_hist_r
     tt_mean_abswidth = float(tt_mean_abswidth)/tt_nEntries
     tt_mean_res = float(tt_mean_res)/tt_nEntries
 

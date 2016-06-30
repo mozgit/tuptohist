@@ -218,7 +218,7 @@ def CreateTTHist(data, variable,  mode, suffix, address="Plots/", test_mode = Fa
     
   
   if (mode =="Mean") or (variable == "mean"):
-    hist_summary  = R.TH1D("hist_summary", "TT "+first_lower(title)+"; Residual [mm];Number of sectors", nBins, min(vals), max(vals))
+    hist_summary  = R.TH1D("hist_summary", "TT "+first_lower(title)+"; Bias [mm];Number of sectors", nBins, min(vals), max(vals))
   elif (mode =="Sigma") or (variable == "width"):
     hist_summary  = R.TH1D("hist_summary", "TT "+first_lower(title)+"; Resolution [mm];Number of sectors", nBins, min(vals), max(vals))
   elif variable == "efficiency":
